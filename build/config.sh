@@ -10,7 +10,7 @@
 STORY="panic"
 
 # Z-machine version this project compiles to, 3 and 5 supported
-ZVERSION="5"
+ZVERSION="3"
 
 # used by the bundle.sh utility for naming the release archive
 RELEASE="R1"

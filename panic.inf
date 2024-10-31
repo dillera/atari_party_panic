@@ -10,6 +10,14 @@ Constant INITIAL_LOCATION_VALUE = TrainStation;
 Constant STATUSLINE_SCORE;
 Constant MAX_SCORE = 50;
 
+! Change to 0 when releasing
+Constant RUNTIME_ERRORS = 2;
+
+
+
+
+Include "lib/globals.h";
+
 ! Game-specific globals
 Global power_failed = false;
 Global doors_locked = false;
@@ -18,8 +26,40 @@ Global pokey_installed = false;
 Global rug_moved = false;
 Global bunker_found = false;
 
-Include "lib/globals.h";
+
+[ TimePasses;
+    game_turns++;
+    
+    ! Power failure event
+    if (power_failed == false && game_turns > 3 && random(100) < 15) {
+        power_failed = true;
+        doors_locked = true;
+        "^Suddenly, the lights flicker and go out! Emergency lighting comes on, 
+        casting an eerie glow. There's a loud series of mechanical thuds as heavy 
+        metal shutters slam down over all the windows and doors!^";
+    }
+    
+    ! If chip is installed and powered on, start modem sequence
+    if (power_failed && pokey_installed && atari800.is_powered) {
+        if (random(100) < 20) {
+            power_failed = false;
+            doors_locked = false;
+            print "^The Atari's modem finally connects! After a brief exchange of data, 
+                the security system confirms that there is no emergency.^^";
+            print "With a series of heavy clicks, the metal shutters retract and the 
+                main power comes back online.^^";
+            print "Score: 50/50. Congratulations!^";
+            @quit;
+        }
+    }
+    rfalse;
+];
+
+
 Include "lib/puny.h";
+
+
+
 
 ! Add a permanent light source for the station
 Object overhead_lights "Overhead Lights"
@@ -123,7 +163,7 @@ Object TrainStation "Quakertown Train Station"
 
 Object -> framedArticle "framed newspaper article" 
     with
-        name 'framed' 'newspaper' 'article' 'paper' 'frame' 'clipping',
+        name 'framed' 'newspaper' 'article' 'paper',
         description [;
             print "^The yellowed newspaper article, dated September 15th, 1989, is preserved 
             behind glass in a simple wooden frame. The headline reads:^";
@@ -195,7 +235,7 @@ Object StorageArea "Storage Area"
 
 Object rug "oriental rug" StorageArea
     with
-        name 'ornate' 'oriental' 'rug' 'carpet' 'persian',
+        name 'oriental' 'rug' 'carpet' 'persian',
         description [;
             if (rug_moved) {
                 "The ornate oriental rug has been moved aside, revealing the heavy trapdoor beneath.";
@@ -219,7 +259,7 @@ Object rug "oriental rug" StorageArea
 
 Object trapdoor "metal trapdoor"
     with
-        name 'trap' 'door' 'trapdoor' 'metal' 'hatch',
+        name  'trapdoor' 'metal' 'hatch',
         description [;
             if (rug_moved == false) return false;
             if (power_failed)
@@ -279,7 +319,7 @@ Object BunkerRoom "Military Computer Bunker"
 
 Object -> securityModem "Military-Grade Modem"
     with
-        name 'military' 'grade' 'modem' 'device',
+        name 'military' 'modem' 'device',
         description "A heavy-duty modem unit labeled ~EMERGENCY COMM LINK - MODEL FB1~. 
             Various military specification stickers cover its case.",
     has static;
@@ -287,7 +327,7 @@ Object -> securityModem "Military-Grade Modem"
 
 Object -> techNotebook "Technical Notebook"
     with
-        name 'technical' 'tech' 'notebook' 'diary' 'log' 'book',
+        name 'notebook' 'diary' 'log' 'book',
         description [;
             print "^A spiral-bound notebook with ~SYSTEM MAINTENANCE LOG~ printed on its cover. 
                 Several entries catch your eye:^^";
@@ -316,7 +356,7 @@ Object -> techNotebook "Technical Notebook"
 
 Object atari800 "Modified Atari 800" PoweredDevice
     with
-        name 'modified' 'atari' '800' 'computer' 'system' 'atari800',
+        name 'atari' '800' 'computer' 'atari800',
         description [;
             print "This Atari 800 is unlike any you've seen before. Rack-mounted in a 
                 military-grade enclosure, it's been extensively modified with additional 
@@ -418,7 +458,7 @@ Object -> -> atariDisk "Atari diagnostic disk"
 
 Object -> -> pokeyChip "POKEY Chip"
     with
-        name 'pokey' 'chip' 'ic' 'integrated' 'circuit',
+        name 'pokey' 'chip' 'circuit',
         description [;
             print "An Atari POKEY chip (part number C012294). It handles 
                 sound generation and, more importantly, serial I/O operations.";
@@ -457,31 +497,3 @@ Object tools "Electronics toolkit"
     return 2;
 ];
 
-
-[ TimePasses;    ! Changed back to TimePasses from MainLoop
-    game_turns++;
-    
-    ! Power failure event
-    if (power_failed == false && game_turns > 3 && random(100) < 15) {
-        power_failed = true;
-        doors_locked = true;
-        "^Suddenly, the lights flicker and go out! Emergency lighting comes on, 
-        casting an eerie glow. There's a loud series of mechanical thuds as heavy 
-        metal shutters slam down over all the windows and doors!^";
-    }
-    
-    ! If chip is installed and powered on, start modem sequence
-    if (power_failed && pokey_installed && atari800.is_powered) {
-        if (random(100) < 20) {
-            power_failed = false;
-            doors_locked = false;
-            print "^The Atari's modem finally connects! After a brief exchange of data, 
-                the security system confirms that there is no emergency.^^";
-            print "With a series of heavy clicks, the metal shutters retract and the 
-                main power comes back online.^^";
-            print "Score: 50/50. Congratulations!^";
-            @quit;
-        }
-    }
-    rfalse;
-];

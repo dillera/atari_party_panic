@@ -53,10 +53,31 @@ zmachine5()
     exit 0
 }
 
+
+zmachine4()
+{
+    a8bin=~/FictionTools/atari8bit/a8.bin # Infocom's early terp, 130kb disk image, 40 columns
+    printf "Interpreter: Infocom early single-disk [ZIP]\n"
+    printf "Columns: 40\n"
+    printf "Memory: min. 48kb\n"
+    printf "Disk: Single-Sided, Enhanced-Density, 130kb capacity\n"
+    printf "Disk Drive: 1050 and XF551\n\n"
+    printf "Disk image built. Booting with BASIC enabled/disabled possible.\n"
+    printf "_Input: ${STORY}.z4  Output: ${STORY}${suffix}.atr\n"
+    cat $a8bin ${STORY}.z4 > ${STORY}${suffix}.atr 2>/dev/null
+    size=`ls -l ${STORY}${suffix}.atr | cut -d' ' -f5`
+    head --bytes $((133136-$size)) /dev/zero >> ${STORY}${suffix}.atr
+    printf "\n" #just for cosmetical reasons
+    exit 0
+}
+
+
 # Z-machine version check
 zvalue="$ZVERSION"
 if [[ $zvalue == 5 ]] ; then
     zmachine5
 elif [[ $zvalue == 3 ]] ; then
     zmachine3
+elif [[ $zvalue == 4 ]] ; then
+    zmachine4    
 fi
