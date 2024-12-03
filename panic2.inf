@@ -62,6 +62,7 @@ Include "lib/puny.h";
 
 
 ! Add a permanent light source for the station
+!-----------------------------------------------------------------
 Object overhead_lights "Overhead Lights"
     with
         name 'lights' 'lighting' 'overhead',
@@ -74,8 +75,23 @@ Object overhead_lights "Overhead Lights"
 
 
 ! Verb definitions
+!-----------------------------------------------------------------
+
 Verb 'diagnose' 'test'
     * noun                  -> DiagnoseDevice;
+
+
+Extend 'read' replace
+    * noun                  -> Read;
+
+[ ReadSub;
+    if (noun has static) {
+        rfalse;  ! Let the before property handle it
+    }
+    "You can't read that.";
+];
+
+
 
 
 ! Custom verb actions
@@ -106,7 +122,9 @@ Verb 'diagnose' 'test'
 ];
 
 
+
 ! Object Classes
+!-----------------------------------------------------------------
 
 Class PoweredDevice
     with 
@@ -131,8 +149,6 @@ Class PoweredDevice
 ! ROOM
 !
 !#####################
-
-
 
 Object TrainStation "Quakertown Train Station"
     with
@@ -294,9 +310,9 @@ Object BunkerRoom "Military Computer Bunker"
     with
         name 'bunker' 'room' 'military',
         description [;
-            print "This hidden bunker is a retro-computing time capsule. Racks of 
-                1970s and 80s computer equipment line the walls, status lights still 
-                blinking after all these years. The air has a distinct ozone smell 
+            print "This hidden bunker is a computing time capsule. Racks of 
+                1970s and 80s computer equipment line the walls, status lights blinking 
+                back on after all these years. The air has a distinct ozone smell 
                 mixed with old electronics.^^";
             
             if (power_failed) {
@@ -304,54 +320,49 @@ Object BunkerRoom "Military Computer Bunker"
                     of the equipment has gone dark, except for the central Atari system 
                     which runs on its own power supply.";
             } else {
-                print "Fluorescent lights illuminate banks of vintage computers, their 
+                print "Fluorescent lights illuminate banks of vintage computer racks, their 
                     cooling fans providing a constant background hum.";
             }
             
             print "^In the center of the room stands a heavy metal table, supporting a 
                 heavily modified Atari 800 connected to what appears to be a military-grade 
-                modem system. A technical notebook rests beside the computer.^";
+                telecom system with an old modem. 
+                A technical notebook rests beside the computer as well as a small diary.^";
             
             rfalse;
         ],
         u_to StorageArea,
     has light;
 
-Object -> securityModem "Military-Grade Modem"
+
+Object -> logbook "logbook" 
+    with 
+        name 'logbook' 'technical',
+        description "A technical logbook with various entries.",
+        before [;
+            Examine: "It is a technical logbook with various entries.";
+            Read: LogbookEntries(); rtrue;
+        ],
+    has ;  ! Remove static so it can be picked up
+
+Object -> diary "diary"
+    with 
+        name 'diary' 'personal',
+        description "A worn diary filled with personal notes and reflections.",
+        before [;
+            Examine: "A diary filled with personal notes.";
+            Read: DiaryEntries(); rtrue;
+        ],
+    has ;  ! Remove static so it can be picked up
+
+
+Object -> securityModem "Modem"
     with
-        name 'military' 'modem' 'device',
-        description "A heavy-duty modem unit labeled ~EMERGENCY COMM LINK - MODEL FB1~. 
+        name  'modem' 'device',
+        description "A heavy-duty modem unit labeled ~EMERGENCY COMM LINK - MODEL XFB1~. 
             Various military specification stickers cover its case.",
     has static;
 
-
-Object -> techNotebook "Technical Notebook"
-    with
-        name 'notebook' 'diary' 'log' 'book',
-        description [;
-            print "^A spiral-bound notebook with ~SYSTEM MAINTENANCE LOG~ printed on its cover. 
-                Several entries catch your eye:^^";
-                
-            print "MAY 15 1989:^";
-            print "Final inspection before decommission. All systems nominal. Keeping minimal 
-                emergency capability as per DOD directive 11-7.^^";
-                
-            print "APRIL 3 1989:^";
-            print "Replaced POKEY chip in main comm system. Old one showing signs of failure. 
-                Requisitioned last spare from depot. Note: Any future failures will require 
-                scavenging compatible chip from civilian hardware.^^";
-                
-            print "MARCH 12 1989:^";
-            print "Monthly test of emergency protocols successful. Reminder: System automatically 
-                locks down if unable to verify external conditions. Must maintain modem link 
-                to prevent false positive emergency response.^^";
-                
-            if (power_failed)
-                print "^The last entry seems particularly relevant now!";
-            
-            return true;
-        ],
-    has static;
 
 
 Object atari800 "Modified Atari 800" PoweredDevice
@@ -426,7 +437,6 @@ Object -> chipSlot "POKEY chip slot"
 
 !--------------------------------------------------
 
-
 Object TicketOffice "Ticket Office"
     with
         description 
@@ -442,6 +452,7 @@ Object TicketOffice "Ticket Office"
 
 
 ! Swap meet items
+!-----------------------------------------------------------------
 
 
 Object -> atariBox "Cardboard box of 8-bit Atari parts"
@@ -501,10 +512,14 @@ Object tools "Electronics toolkit"
 
 
 ! Globals for tracking read entries
+!-----------------------------------------------------------------
+
 Global logbook_entry_read = 0;  ! Tracks last read entry in logbook
 Global diary_entry_read = 0;    ! Tracks last read entry in diary
 
 ! LogbookEntries Routine
+!-----------------------------------------------------------------
+
 [ LogbookEntries;
     if (logbook_entry_read >= 5) {
         print "You have already read all the entries in the logbook.";
@@ -518,9 +533,12 @@ Global diary_entry_read = 0;    ! Tracks last read entry in diary
         4: print "Entry #004 - Repair Log:^Replaced POKEY chip in Atari 800 terminal. Testing required to ensure compatibility with system boot routines.";
         5: print "Entry #005 - Final Report:^Station personnel evacuated. Computer system left in diagnostic mode. Warning: bootloader corruption likely.";
     }
+    if (logbook_entry_read < 5) print "^...there is another entry to read on the next page...";
 ];
 
 ! DiaryEntries Routine
+!-----------------------------------------------------------------
+
 [ DiaryEntries;
     if (diary_entry_read >= 5) {
         print "You have already read all the entries in the diary.";
@@ -528,30 +546,24 @@ Global diary_entry_read = 0;    ! Tracks last read entry in diary
     }
     diary_entry_read++;
     switch (diary_entry_read) {
-        1: print "Entry #1 - First Impressions:^This installation feels like a tomb. The hum of the computers is the only sound left to remind me we're alive.";
-        2: print "Entry #2 - Broken Connection:^The Atari won't boot. I don't know if it’s the power grid or the machine itself. Without it, we’re stuck here.";
+        1: print "Entry #1 - First Impressions:^
+        PERSONAL DIARY^
+        Dr. Thomas Chen - Lead Systems Administrator^
+        1988-12-10^
+        First day at the facility. Can't believe they're really using an Atari 800 for this. 
+        Military claims it's unhackable because nobody would expect it. They might be right.";
+
+        2: print "Entry #2 - Broken Connection:^The Atari won't boot. I don't know if it's the power grid or the machine itself. Without it, we're stuck here.";
+
         3: print "Entry #3 - Despair Sets In:^Every day feels heavier. I started writing this to keep my mind together, but the silence mocks every word.";
-        4: print "Entry #4 - Hope Flickers:^I found an old POKEY chip in storage. Maybe, just maybe, I can fix the terminal. I’m terrified it won't work.";
-        5: print "Entry #5 - Farewell:^If someone finds this, know I tried. I couldn’t fix the computer. Maybe you can. The key to escape is there.";
+
+        4: print "Entry #4 - Hope Flickers:^I found an old POKEY chip in storage. Maybe, just maybe, I can fix the terminal. I'm terrified it won't work.";
+
+        5: print "Entry #5 - Farewell:^If someone finds this, know I tried. I couldn't fix the computer. Maybe you can. The key to escape is there.";
     }
+    if (diary_entry_read < 5) print "^...there is another entry to read below this one.";
 ];
 
-! Logbook Object
-Object -> logbook "logbook"
-    with name 'logbook' 'technical',
-    description "A technical logbook, filled with system updates and reports.",
-    before [;
-        Examine: "It’s a technical logbook with various entries.";
-        Read: LogbookEntries();
-    ],
-    has static;
 
-! Diary Object
-Object -> diary "diary"
-    with name 'diary' 'personal',
-    description "A worn diary filled with personal notes and reflections.",
-    before [;
-        Examine: "A diary filled with personal notes.";
-        Read: DiaryEntries();
-    ],
-    has static;
+! end
+
