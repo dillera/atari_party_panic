@@ -11,8 +11,21 @@ Final system diagnostic before facility decommission. All security protocols sti
 Don't panic, you know this.
 
 
+## Quick Build - on a Mac, for Atari 170k disk
+```
+$ make
+$ make build
+$ made deploy
+```
 
-## Building from Source
+ - make invokes inform, outputs a .z3
+ - build invokes some bash and outputs an .atr bootable disk image
+ - deploy scp's the disk image to my tnfs server for loading
+
+ Adjust as necessary (the story name, tnfs server target) in the Makefile and save.
+ 
+
+## Manual Building from Source
 
 
 ### OSX Setup
@@ -66,7 +79,7 @@ This is not tested by myself yet.
 ### Move the Images to a TNFS server
 
 ```
-scp panic_atari8bit.atr actual:_services/tnfs/server_root/ATARI/TESTING/panic.atr
+scp ../artifacts/panic_atari8bit.atr actual:_services/tnfs/server_root/ATARI/TESTING/panic.atr
 
 ```
 
