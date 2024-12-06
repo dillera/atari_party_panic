@@ -16,11 +16,13 @@ Don't panic, you know this.
 $ make
 $ make build
 $ made deploy
+$ make clean
 ```
 
- - make invokes inform, outputs a .z3
- - build invokes some bash and outputs an .atr bootable disk image
- - deploy scp's the disk image to my tnfs server for loading
+ - make    - invokes inform, outputs a .z3
+ - build   - invokes some bash and outputs an .atr bootable disk image
+ - deploy  - scp's the disk image to my tnfs server for loading
+ - clean   - removes the .z3 and .art files from the filesystem
 
  Adjust as necessary (the story name, tnfs server target) in the Makefile and save.
  

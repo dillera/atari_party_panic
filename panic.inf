@@ -63,8 +63,6 @@ Object overhead_lights "Overhead Lights"
 ! Verb definitions
 !-----------------------------------------------------------------
 
-Verb 'diagnose' 'test'
-    * noun                  -> DiagnoseDevice;
 
 Extend 'read' replace
     * noun                  -> Read;
@@ -76,60 +74,7 @@ Extend 'read' replace
     "You can't read that.";
 ];
 
-! Custom verb actions
-[ DiagnoseDeviceSub;
-    if (noun == atari800) {
-        if (~~noun.is_powered) {
-            "You'll need to power it on first.";
-        }
-        if (power_failed) {
-            if (pokey_installed) {
-                "The diagnostic screen shows:^
-                SYSTEM STATUS:^
-                MODEM TEST........INITIALIZING^
-                DIALING REMOTE SYSTEM...^
-                PLEASE WAIT...";
-            }
-            "The diagnostic screen shows:^
-            SYSTEM STATUS:^
-            MODEM TEST........FAILED^
-            SIO ERROR #138^
-            POKEY REG $D200 NOT RESPONDING^
-            CANNOT VERIFY EXTERNAL STATUS^
-            LOCKDOWN MAINTAINED";
-        }
-        "The screen shows only static. Perhaps something needs to be configured?";
-    }
-    "That's not something you can diagnose.";
-];
 
-! Object Classes
-!-----------------------------------------------------------------
-
-
-Class PoweredDevice
-    with 
-        is_powered 0,  ! Changed from false to 0 for PunyInform
-        before [;
-            SwitchOn:
-                if (self.is_powered) {
-                    "That's already powered on.";
-                }
-                self.is_powered = 1;  ! Changed from true to 1
-                "You switch it on.";
-            SwitchOff:
-                if (~~self.is_powered) {
-                    "That's already off.";
-                }
-                self.is_powered = 0;  ! Changed from false to 0
-                "You switch it off.";
-        ];
-
-!######################################################################
-! ROOMS
-!
-!######################################################################
-!######################################################################
 
 
 !--------------------------------------------------
