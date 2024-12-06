@@ -13,6 +13,12 @@ NAME = panic
 A8BIN = ./a8.bin
 DISK_SIZE = 133136
 
+
+# Build the game
+$(NAME).z3: $(NAME).inf
+	$(INFORM) $(INFORM_FLAGS) $< $@
+
+
 # Build Atari disk image
 build: $(NAME).z3
 	cat $(A8BIN) $(NAME).z3 > $(NAME).atr 2>/dev/null
@@ -27,7 +33,7 @@ build: $(NAME).z3
 	fi
 
 
-	
+
 # Deploy to server
 deploy: build
 	scp $(NAME).atr actual:_services/tnfs/server_root/ATARI/TESTING/panic.atr
