@@ -16,10 +16,11 @@ ZVERSION="3"
 RELEASE="R1"
 
 # subtitle (it is recommended using your itch.io URL)
-SUBTITLE="The Atari Party 2024"
+SUBTITLE="Atari Party Panic 2024"
 
 # the label you want to release your software under, e.g. Infocom
 LABEL="DillerCOM / Panic24"
 
 # specify directory, relative to here, where to find z files and put disk images
-ARTIFACT_DIR="../artifacts"
+#ARTIFACT_DIR="../artifacts"
+ARTIFACT_DIR="."

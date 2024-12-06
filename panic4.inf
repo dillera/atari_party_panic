@@ -1,0 +1,606 @@
+! Atari Party Panic
+! A PunyInform Interactive Fiction Game
+! Andrew Diller dillera@dillernet.com Oct 2024
+! version .1-preview December 5, 2024
+
+
+Constant Story "Atari Party Panic";
+Constant Headline "^An Interactive Fiction by Andrew Diller^";
+
+! Set initial location to the first room we defined
+Constant INITIAL_LOCATION_VALUE = TrainStation;
+Constant STATUSLINE_SCORE;
+Constant MAX_SCORE = 50;
+
+! Change to 0 when releasing
+Constant RUNTIME_ERRORS = 2;
+
+Include "lib/globals.h";
+
+! Game-specific globals
+Global power_failed = false;
+Global doors_locked = false;
+Global game_turns = 0;
+Global pokey_installed = false;
+Global rug_moved = false;
+Global bunker_found = false;
+
+[ TimePasses;
+    game_turns++;
+    
+    ! Power failure event - only happens once when conditions are met
+    if (power_failed == false && game_turns > 3 ) {
+        power_failed = true;
+        doors_locked = true;
+        print "^Suddenly, the lights flicker and go out! Emergency lighting comes on, 
+            casting an eerie glow. There's a loud series of mechanical thuds as heavy 
+            metal shutters slam down over all the windows and doors!^";
+        if (location == Platform) {
+            PlayerTo(TrainStation);
+            print "You quickly rush back inside before the doors seal completely!^";
+        }
+        rtrue;
+    }
+    rfalse;
+];
+
+
+Include "lib/puny.h";
+
+
+! Add a permanent light source for the station
+!-----------------------------------------------------------------
+Object overhead_lights "Overhead Lights"
+    with
+        name 'lights' 'lighting' 'overhead',
+        description [;
+            if (power_failed) 
+                "The main lights are out, but emergency lighting provides an eerie blue glow.";
+            "Bright fluorescent lights illuminate the station.";
+        ],
+    has light static;
+
+! Verb definitions
+!-----------------------------------------------------------------
+
+Verb 'diagnose' 'test'
+    * noun                  -> DiagnoseDevice;
+
+Extend 'read' replace
+    * noun                  -> Read;
+
+[ ReadSub;
+    if (noun has static) {
+        rfalse;  ! Let the before property handle it
+    }
+    "You can't read that.";
+];
+
+! Custom verb actions
+[ DiagnoseDeviceSub;
+    if (noun == atari800) {
+        if (~~noun.is_powered) {
+            "You'll need to power it on first.";
+        }
+        if (power_failed) {
+            if (pokey_installed) {
+                "The diagnostic screen shows:^
+                SYSTEM STATUS:^
+                MODEM TEST........INITIALIZING^
+                DIALING REMOTE SYSTEM...^
+                PLEASE WAIT...";
+            }
+            "The diagnostic screen shows:^
+            SYSTEM STATUS:^
+            MODEM TEST........FAILED^
+            SIO ERROR #138^
+            POKEY REG $D200 NOT RESPONDING^
+            CANNOT VERIFY EXTERNAL STATUS^
+            LOCKDOWN MAINTAINED";
+        }
+        "The screen shows only static. Perhaps something needs to be configured?";
+    }
+    "That's not something you can diagnose.";
+];
+
+! Object Classes
+!-----------------------------------------------------------------
+
+
+Class PoweredDevice
+    with 
+        is_powered 0,  ! Changed from false to 0 for PunyInform
+        before [;
+            SwitchOn:
+                if (self.is_powered) {
+                    "That's already powered on.";
+                }
+                self.is_powered = 1;  ! Changed from true to 1
+                "You switch it on.";
+            SwitchOff:
+                if (~~self.is_powered) {
+                    "That's already off.";
+                }
+                self.is_powered = 0;  ! Changed from false to 0
+                "You switch it off.";
+        ];
+
+!######################################################################
+! ROOMS
+!
+!######################################################################
+!######################################################################
+
+
+!--------------------------------------------------
+! TrainStation
+!--------------------------------------------------
+! 888              888      888               
+! 888              888      888               
+! 888              888      888               
+! 888      .d88b.  88888b.  88888b.  888  888 
+! 888     d88""88b 888 "88b 888 "88b 888  888 
+! 888     888  888 888  888 888  888 888  888 
+! 888     Y88..88P 888 d88P 888 d88P Y88b 888 
+! 88888888 "Y88P"  88888P"  88888P"   "Y88888 
+!                                         888 
+!                                    Y8b d88P 
+!                                     "Y88P"  
+
+Object TrainStation "Lobby"
+    with
+        description [;
+            print "The historic Quakertown Train Station has been transformed into 
+                a bustling hub of retro computing enthusiasm. Tables are set up with 
+                various Atari systems and parts for the annual party. Large windows line 
+                the walls, and the old ticket counter stands prominently at one end.";
+            
+            if (power_failed) {
+                print "^Heavy metal shutters now cover all the windows and doors, 
+                    their suddenly-revealed presence transforming the quaint old station 
+                    into something far more military. Emergency lights cast everything 
+                    in an eerie blue glow.";
+            } else {
+                print "^Sunlight streams through the tall Victorian windows, highlighting 
+                    the station's blend of 1880s architecture and 1980s technology. A 
+                    framed newspaper article hangs prominently near the ticket counter.";
+            }
+            print "^";
+            rfalse;   ! This allows any items in the room to be listed after
+        ],
+        w_to TicketOffice,
+        n_to StorageArea,
+
+        e_to [;
+            if (power_failed) "The security shutters are locked tight over the doorway! You can't get out.";
+            return Platform;
+        ],
+    has light;
+
+
+Object -> framedArticle "framed newspaper article" 
+    with
+        name 'framed' 'newspaper' 'article' 'paper',
+        description [;
+            print "^The yellowed newspaper article, dated September 15th, 1989, is preserved 
+            behind glass in a simple wooden frame. The headline reads:^";
+            print "^    QUAKERTOWN STATION RETURNS TO CIVILIAN CONTROL^";
+            print "^The article explains that the station, which had served as a classified 
+            military communications relay since 1945, was finally being decommissioned 
+            after 44 years of secret operation. The facility, code-named ~IRON HORSE~, 
+            was part of a nationwide emergency communications network.^";
+            print "^A former officer is quoted: ~The station's original Victorian architecture 
+            made it perfect - hiding high-tech equipment in plain sight. Who'd suspect 
+            an old train station?~^";
+
+            if (power_failed) {
+                print "^Looking at the article now, with the blast shields deployed, 
+                you realize just how deep that deception went.^";
+            }
+            return true;
+        ],
+        before [;
+            Take: "The frame is securely mounted to the wall.";
+        ],
+    has static;
+
+Object -> articlePlaque "small brass plaque"
+    with
+        name 'small' 'brass' 'plaque' 'plate',
+        description 
+            "A small brass plaque beneath the article reads: ~Presented to the 
+            Quakertown Historical Society by the Department of Defense, 1989~",
+        before [;
+            Take: "The plaque is firmly attached to the wall.";
+        ],
+    has static;
+
+
+
+Object Platform "Station Platform"
+    with
+        description 
+            "A covered platform extends along the length of the building and beyond. The tracks, 
+            though long unused, still gleam in the light.",
+        w_to [;
+            if (power_failed) "The security shutters are locked tight over the doorway.";
+            return TrainStation;
+        ],
+    has light;
+
+
+!--------------------------------------------------
+! StorageArea
+!--------------------------------------------------
+
+
+Object StorageArea "Storage Area"
+    with
+        description [;
+            print "This dusty room seems to have been used for storing luggage 
+                and rail supplies in the station's heyday. Old shelves line the walls.";
+            if (rug_moved) {
+                print "^An open trapdoor in the floor reveals a surprise - there's 
+                    a room below, filled with the glow of electronic equipment.";
+            } else {
+                print "^An ornate oriental rug seems oddly out of place here.";
+            }
+            print "^";
+        ],
+        s_to TrainStation,
+        d_to [;
+            if (rug_moved) return BunkerRoom;
+            "You can't go that way.";
+        ],
+    has light;
+
+Object rug "oriental rug" StorageArea
+    with
+        name 'oriental' 'rug' 'carpet' 'persian',
+        description [;
+            if (rug_moved) {
+                "The ornate oriental rug has been moved aside, revealing the heavy trapdoor beneath.";
+            }
+            "An ornate oriental rug seems strangely out of place in this utilitarian storage room. 
+            Its rich reds and blues contrast sharply with the dusty concrete floor.";
+        ],
+        before [;
+            Push, Pull, Take, Remove: 
+                if (rug_moved) "The rug has already been moved aside.";
+                rug_moved = true;
+                bunker_found = true;
+                "You pull the heavy rug aside, revealing something unexpected - 
+                a large metal trapdoor set into the concrete floor! As soon as the 
+                rug's weight is removed, the trapdoor's pneumatic mechanisms whir 
+                to life, and it slowly opens with a hydraulic hiss.";
+            Examine: rfalse;
+        ],
+    has static;
+
+Object trapdoor "metal trapdoor"
+    with
+        name  'trapdoor' 'metal' 'hatch',
+        description [;
+            if (rug_moved == false) return false;
+            if (power_failed)
+                "The heavy trapdoor stands open, its hydraulic mechanisms locked in place. 
+                Emergency lighting spills up from below.";
+            "A heavy-duty metal trapdoor, held open by pneumatic pistons. The gleam of 
+            flickering fluorescent lighting comes from below.";
+        ],
+        when_closed [;
+            if (rug_moved == false) return false;
+            "A heavy metal trapdoor is visible in the floor.";
+        ],
+        door_to BunkerRoom,
+        door_dir d_to,
+        before [;
+            Examine: 
+                if (rug_moved == false) {
+                    "You can't see any trapdoor here.";
+                }
+        ],
+    has static door open;
+
+
+
+
+!--------------------------------------------------
+! BunkerRoom
+!--------------------------------------------------
+! 888888b.                     888                       
+! 888  "88b                    888                       
+! 888  .88P                    888                       
+! 8888888K.  888  888 88888b.  888  888  .d88b.  888d888 
+! 888  "Y88b 888  888 888 "88b 888 .88P d8P  Y8b 888P"   
+! 888    888 888  888 888  888 888888K  88888888 888     
+! 888   d88P Y88b 888 888  888 888 "88b Y8b.     888     
+! 8888888P"   "Y88888 888  888 888  888  "Y8888  888     
+                                                       
+                                                       
+                                                       
+
+Object BunkerRoom "Bunker"
+    with
+        name 'bunker' 'room' 'military',
+        description [;
+            print "This hidden bunker is a computing time capsule. Racks of 
+                1970s and 80s computer equipment line the walls, status lights blinking 
+                back on after all these years. The air has a distinct ozone smell 
+                mixed with old electronics.^^";
+            
+            if (power_failed) {
+                print "Emergency lighting bathes everything in an eerie blue glow. Most 
+                    of the equipment has gone dark, except for the central Atari system 
+                    which runs on its own power supply.";
+            } else {
+                print "Fluorescent lights illuminate banks of vintage computer racks, their 
+                    cooling fans providing a constant background hum.";
+            }
+            
+            print "^In the center of the room stands a heavy metal table, supporting a 
+                heavily modified Atari 800 connected to what appears to be a military-grade 
+                telecom system with an old modem. 
+                A technical notebook rests beside the computer as well as a small diary.^";
+            
+            rfalse;
+        ],
+        u_to StorageArea,
+    has light;
+
+
+
+Object -> logbook "logbook" 
+    with 
+        name 'logbook' 'technical',
+        description "A technical logbook with various entries.",
+        before [;
+            Examine: "It is a technical logbook with various entries.";
+            Read: LogbookEntries(); rtrue;
+        ],
+    has ;  ! Remove static so it can be picked up
+
+Object -> diary "diary"
+    with 
+        name 'diary' 'personal',
+        description "A worn diary filled with personal notes and reflections.",
+        before [;
+            Examine: "A diary filled with personal notes.";
+            Read: DiaryEntries(); rtrue;
+        ],
+    has ;  ! Remove static so it can be picked up
+
+Object -> securityModem "Modem"
+    with
+        name  'modem' 'device',
+        description "A heavy-duty modem unit labeled ~EMERGENCY COMM LINK - MODEL XFB1~. 
+            Various military specification stickers cover its case.",
+    has static;
+
+
+
+
+!--------------------------------------------------
+!
+!       d8888 888                     d8b 
+!      d88888 888                     Y8P 
+!     d88P888 888                         
+!    d88P 888 888888  8888b.  888d888 888 
+!   d88P  888 888        "88b 888P"   888 
+!  d88P   888 888    .d888888 888     888 
+! d8888888888 Y88b.  888  888 888     888 
+!d88P     888  "Y888 "Y888888 888     888 
+                                         
+                                         
+                                         
+
+Object atari800 "Modified Atari 800" 
+    with
+        name 'atari' '800' 'computer' 'atari800',
+        description [;
+            print "This Atari 800 is unlike any you've seen before. Rack-mounted in a 
+                military-grade enclosure, it's been extensively modified with additional 
+                hardware. A government property tag reads: ~IRON HORSE COMM SYSTEM V2.3~.^";
+            
+            if (pokey_installed)
+                "The screen displays: ~EMERGENCY PROTOCOL ACTIVE - ATTEMPTING MODEM SYNC~";
+            "The screen shows various error messages about a missing POKEY chip.";
+        ],
+        before [;
+            Take: "The computer is securely bolted to the table.";
+            Receive:
+                if (noun == pokeyChip) {
+                    if (pokey_installed) {
+                        "The POKEY chip is already installed.";
+                    }
+                    if (power_failed == false) {
+                        "You probably shouldn't mess with the computer while everyone's watching.";
+                    }
+                    if (parent(tools) ~= player) {
+                        "You need proper tools to safely handle and install the chip.";
+                    }
+                    pokey_installed = true;
+                    score = score + 2;
+                    move pokeyChip to chipSlot;
+                    print "Very carefully, using the anti-static tools, you install the POKEY chip 
+                        into its socket. It fits perfectly with a satisfying click.^";
+                    power_failed = false;
+                    doors_locked = false;
+                    print "^The Atari's modem immediately springs to life! After a brief exchange of data, 
+                        the security system confirms that there is no emergency.^^";
+                    print "With a series of heavy clicks, the metal shutters retract and the 
+                        main power comes back online.^^";
+                    score = 50;
+                    print "You've successfully restored the station's systems and saved the Atari party!^^";
+                    print "Score: ", score, "/", MAX_SCORE, ". Congratulations!^";
+                    @quit;
+                }
+                "That doesn't seem to fit there.";
+        ],
+    has static container open;
+    
+
+
+Object -> chipSlot "POKEY chip slot"
+    with
+        name 'slot' 'socket' 'chip' 'socket',
+        description [;
+            if (pokey_installed)
+                "The POKEY chip is firmly seated in its socket.";
+            "An empty IC socket labeled 'POKEY - C012294'. The original chip appears to have been removed.";
+        ],
+        before [;
+            Receive:
+                if (noun == pokeyChip) rtrue;
+                "That doesn't fit in the chip socket.";
+        ],
+    has static container open;
+
+
+
+!--------------------------------------------------
+! TicketOffice
+!--------------------------------------------------
+
+Object TicketOffice "Ticket Office"
+    with
+        description 
+            "The old ticket office has been repurposed into the main swap 
+            meet area. Folding tables are laden with Atari computers, parts, books, 
+            and random junk. The walls still hold vintage railway timetables.
+            There are entire Atari systems here as well as almost every part
+            of every Atari ever made. A poster hanging up says:
+            ALL SALES FINAL!
+            ",
+        e_to TrainStation,
+    has light;
+
+
+! Swap meet items
+!-----------------------------------------------------------------
+
+
+Object -> atariBox "Cardboard box of 8-bit Atari parts"
+    with
+        name 'box' 'cardboard' 'parts',
+        description "A large cardboard box containing various Atari computer parts and cables.",
+    has container open static;
+
+Object -> -> atariDisk "Atari diagnostic disk"
+    with
+        name 'disk' 'floppy' 'diagnostic',
+        description "A 5.25 inch floppy disk labeled 'Atari Hardware Diagnostics v2.1'.",
+    has ;
+
+Object -> -> pokeyChip "POKEY Chip"
+    with
+        name 'pokey' 'chip' 'circuit',
+        description [;
+            print "An Atari POKEY chip (part number C012294). It handles 
+                sound generation and, more importantly, serial I/O operations.";
+            if (parent(self) == player)
+                " You need to be careful handling it - static electricity could damage it.";
+            "";
+        ],
+    has ;
+
+Object tools "Electronics toolkit"
+    with
+        name 'toolkit' 'tools' 'kit',
+        description "A basic electronics toolkit with chip extraction tools and an anti-static wrist strap.",
+    has container open;
+
+Object drive "Atari 1050 disk drive"
+    with
+        name '1050' 'diskdrive' 'drive',
+        description "The venerable Atari 1050 enhanced density disk drive- did you ever even figure out what
+        enhanced density was? The drive looks clean and has a SIO cable stuck in the back of it.",
+    has ;
+
+
+
+!###########################################################################
+!
+!  INIT
+!
+!#############################################################################
+
+
+[ Initialise;
+    move overhead_lights to TrainStation;
+    move atari800 to BunkerRoom;
+    move pokeyChip to atariBox;
+    move tools to TicketOffice;
+    
+    print "^Welcome to Atari Party Panic!^^";
+    print "You've been looking forward to the Atari Party meetup all year.^"; 
+    print "Finally, a chance to meet other enthusiasts and maybe find that rare^";
+    print "piece of hardware you've been searching for. The historic Quakertown^";
+    print "Train Station is the perfect venue for such an event... Right?^^";
+    return 2;
+];
+
+
+
+!--------------------------------------------------
+! Notebooks
+!--------------------------------------------------
+
+
+! Globals for tracking read entries
+!-----------------------------------------------------------------
+
+Global logbook_entry_read = 0;  ! Tracks last read entry in logbook
+Global diary_entry_read = 0;    ! Tracks last read entry in diary
+
+! LogbookEntries Routine
+!-----------------------------------------------------------------
+
+[ LogbookEntries;
+    if (logbook_entry_read >= 5) {
+        print "You have already read all the entries in the logbook.";
+        rtrue;
+    }
+    logbook_entry_read++;
+    switch (logbook_entry_read) {
+        1: print "Entry #001 - System Status:^Primary systems are operational. Routine maintenance detected anomalies in sector drives. Requesting replacement of floppy drive mechanisms for Atari 800 terminal.";
+        2: print "Entry #002 - Emergency Shutdown:^Power fluctuations detected in the main grid. Initiating partial shutdown of auxiliary systems to prevent overload.";
+        3: print "Entry #003 - Incident Report:^Unauthorized access attempt at north bunker terminal. Security protocols engaged. Suspect remains unidentified.";
+        4: print "Entry #004 - Repair Log:^Replaced POKEY chip in Atari 800 terminal. Testing required to ensure compatibility with system boot routines.";
+        5: print "Entry #005 - Final Report:^Station personnel evacuated. Computer system left in diagnostic mode. Warning: bootloader corruption likely.";
+    }
+    if (logbook_entry_read < 5) print "^...there is another entry to read on the next page...";
+];
+
+! DiaryEntries Routine
+!-----------------------------------------------------------------
+
+[ DiaryEntries;
+    if (diary_entry_read >= 5) {
+        print "You have already read all the entries in the diary.";
+        rtrue;
+    }
+    diary_entry_read++;
+    switch (diary_entry_read) {
+        1: print "Entry #1 - First Impressions:^
+        PERSONAL DIARY^
+        Dr. Thomas Chen - Lead Systems Administrator^
+        1988-12-10^
+        First day at the facility. Can't believe they're really using an Atari 800 for this. 
+        Military claims it's unhackable because nobody would expect it. They might be right.";
+
+        2: print "Entry #2 - Broken Connection:^The Atari won't boot. I don't know if it's the power grid or the machine itself. Without it, we're stuck here.";
+
+        3: print "Entry #3 - Despair Sets In:^Every day feels heavier. I started writing this to keep my mind together, but the silence mocks every word.";
+
+        4: print "Entry #4 - Hope Flickers:^I found an old POKEY chip in storage. Maybe, just maybe, I can fix the terminal. I'm terrified it won't work.";
+
+        5: print "Entry #5 - Farewell:^If someone finds this, know I tried. I couldn't fix the computer. Maybe you can. The key to escape is there.";
+    }
+    if (diary_entry_read < 5) print "^...there is another entry to read below this one.";
+];
+
+
+! end
+
+

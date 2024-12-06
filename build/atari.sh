@@ -33,7 +33,8 @@ zmachine3()
     printf "Disk Drive: 1050 and XF551\n\n"
     printf "Disk image built. Booting with BASIC enabled/disabled possible.\n"
     cat $a8bin ${ARTIFACT_DIR}/${STORY}.z3 > ${ARTIFACT_DIR}/${STORY}.atr 2>/dev/null
-    size=`ls -l ${ARTIFACT_DIR}/${STORY}.atr | cut -d' ' -f5`
+    size=`ls -l ${ARTIFACT_DIR}/${STORY}.atr | cut -d' ' -f8`
+    printf "found a size of ${size}... zeroing out: $((133136-$size)) "
     head --bytes $((133136-$size)) /dev/zero >> ${ARTIFACT_DIR}/${STORY}.atr
     printf "\n"
     printf "Disk image located in ${ARTIFACT_DIR}/${STORY}.atr\n"
