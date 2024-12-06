@@ -27,6 +27,15 @@ $ make clean
  Adjust as necessary (the story name, tnfs server target) in the Makefile and save.
  
 
+### Building 
+
+As of now, something is wrong with the builds for ATRs using the shell commands. However this website does an amazing job:
+https://a8.jindrou.sh/inform.html
+
+And i'll be looking at how to make it work via makefile soon.
+
+
+
 ## Manual Building from Source
 
 
