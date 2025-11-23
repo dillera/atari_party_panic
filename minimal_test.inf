@@ -1,0 +1,55 @@
+!% -v3
+! Minimal test case for PunyInform Take/Inventory bug
+! 
+! BUG: Take and Inventory commands produce no output
+! Expected: "Taken." message and "You are carrying:" inventory list
+! Actual: Blank lines with no text
+!
+! System: macOS
+! Inform: 6.44 (11th September 2025)
+! PunyInform: v6.1.1 DR
+! Compiler flags: -v3 +lib -Cu
+
+Constant Story "Minimal Test Case";
+Constant Headline "^Bug Reproduction^";
+
+Include "lib/globals.h";
+Include "lib/puny.h";
+
+Object TestRoom "Test Room"
+    with
+        description "A simple test room.",
+    has light;
+
+Object -> redBall "red ball"
+    with
+        name 'red' 'ball',
+        description "A red ball.",
+    has;
+
+Object -> simpleBox "simple box"
+    with
+        name 'simple' 'box',
+        description "A plain box.",
+    has container open transparent;
+
+Object -> -> blueBall "blue ball"
+    with
+        name 'blue' 'ball',
+        description "A blue ball.",
+    has;
+
+[ Initialise;
+    location = TestRoom;
+    print "^Test Case: Take and Inventory commands^";
+    print "Expected behavior:^";
+    print "  - 'inventory' should show 'You are carrying nothing.'^";
+    print "  - 'take red ball' should show 'Taken.'^";
+    print "  - 'inventory' should show 'You are carrying: a red ball'^^";
+    print "Please test the following commands:^";
+    print "  1. inventory^";
+    print "  2. take red ball^";
+    print "  3. inventory^";
+    print "  4. take blue ball^";
+    print "  5. inventory^^";
+];

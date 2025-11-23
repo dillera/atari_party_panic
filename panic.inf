@@ -239,29 +239,23 @@ Object -> atariBox "cardboard box of Atari parts"
     with
         name 'box' 'cardboard' 'parts',
         description "A large cardboard box containing various Atari computer parts and cables.",
-    has container open static;
+    has container open transparent static;
 
 Object -> -> atariDisk "Atari diagnostic disk"
     with
         name 'disk' 'floppy' 'diagnostic',
-        description "A 5.25 inch floppy disk labeled 'Atari Hardware Diagnostics v2.1'.";
+        description "A 5.25 inch floppy disk labeled 'Atari Hardware Diagnostics v2.1'.",
+    has;
 
 Object -> -> pokeyChip "POKEY chip"
     with
-        name 'pokey' 'sound' ,
-        description [;
-            print "An original Atari POKEY - POtentiometer and KEYboard - chip 
-            (part number C012294). It handles sound generation, SIO and
-            serial I/O operations on the Atari.";
-            if (parent(self) == player)
-                " You need to be careful handling it - static electricity could damage it
-                and these things are super rare.";
-            "";
-        ];
+        name 'pokey' 'sound' 'chip',
+        description "An original Atari POKEY chip.",
+    has;
 
 Object -> -> anticChip "ANTIC chip"
     with
-        name 'antic' 'gpu' ,
+        name 'antic' 'gpu' 'chip',
         description [;
             print "An Atari ANTIC - AlphaNumeric Television Interface Controller chip
              (part number C014887). It handles 
@@ -270,7 +264,8 @@ Object -> -> anticChip "ANTIC chip"
             if (parent(self) == player)
                 " You need to be careful handling it - static electricity could damage it.";
             "";
-        ];
+        ],
+    has;
 
 
 
@@ -287,6 +282,12 @@ Object -> drive "Atari 1050 disk drive"
         enhanced density was? The drive looks clean and has a SIO cable stuck in the back of it.
         There is no power supply with it but you don't hear anything when you gently shake it.",
     has static;
+
+Object -> testCoin "test coin"
+    with
+        name 'test' 'coin',
+        description "A simple test coin.",
+    has;
 
 
 
