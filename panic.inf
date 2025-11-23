@@ -552,6 +552,10 @@ Object PowerFailureDaemon "power failure daemon"
     
     location = TrainStation;
     
+    ! Set lookmode: full description on first visit only
+    ! 1 = normal (brief - full on first visit), 2 = long (verbose - always full), 3 = short (superbrief - never full)
+    lookmode = 1;
+    
     print "[DEBUG] location is now: ", (object) location, " (", location, ")^";
     print "[DEBUG] CheapScenery.found_in called, location=", (name) location, "^";
     
