@@ -150,8 +150,8 @@ Object TrainStation "Lobby"
             if (power_failed) {
                 print "^Heavy metal shutters now cover all the windows and doors, 
                     their suddenly-revealed presence transforming the quaint old station 
-                    into something far more military. Emergency lights cast everything 
-                    in an eerie blue glow.";
+                    into something far more military. Emergency lighting makes everything 
+                    look bluish and shadows creep in the corners.";
             } else {
                 print "^Sunlight streams through the tall Victorian windows, highlighting 
                     the station's blend of 1880s architecture and 1980s technology. A 
@@ -220,13 +220,19 @@ Object -> articlePlaque "small brass plaque"
 ! --- Ticket Office (Swap Meet Area) ---
 Object TicketOffice "Ticket Office"
     with
-        description 
-            "The old ticket office has been repurposed into the main swap 
-            meet area. Folding tables are laden with Atari computers, parts, books, 
-            and random junk. The walls still hold vintage railway timetables.
-            There are entire Atari systems here as well as almost every part
-            of every Atari ever made. A poster hanging up says:
-            ALL SALES FINAL!",
+        description [;
+            print "The old ticket office has been repurposed into the main swap 
+                meet area. Folding tables are laden with Atari computers, parts, books, 
+                and random junk. The walls still hold vintage railway timetables.
+                There are entire Atari systems here as well as almost every part
+                of every Atari ever made. A poster hanging up says:
+                ALL SALES FINAL!";
+            if (power_failed) {
+                print "^^Emergency lighting makes everything look bluish and shadows creep 
+                    in the corners.";
+            }
+            print "^";
+        ],
         e_to TrainStation,
         cheap_scenery
             'table' 'tables//p' "Folding tables covered with Atari equipment and parts."
@@ -297,6 +303,10 @@ Object StorageArea "Storage Area"
         description [;
             print "This dusty room seems to have been used for storing luggage 
                 and rail supplies in the station's heyday. Old shelves line the walls.";
+            if (power_failed) {
+                print " Emergency lighting makes everything look bluish and shadows creep 
+                    in the corners.";
+            }
             if (rug_moved) {
                 print "^An open trapdoor in the floor reveals a surprise - there's 
                     a room below, filled with the glow of electronic equipment.";
