@@ -272,6 +272,7 @@ Object -> rug "oriental rug"
                 if (rug_moved) "The rug has already been moved aside.";
                 rug_moved = true;
                 bunker_found = true;
+                give trapdoor ~concealed;  ! Reveal the trapdoor
                 "You pull the heavy rug aside, revealing something unexpected - 
                 a large metal trapdoor set into the concrete floor! As soon as the 
                 rug's weight is removed, the trapdoor's pneumatic mechanisms whir 
@@ -303,7 +304,7 @@ Object -> trapdoor "metal trapdoor"
                     "You can't see any trapdoor here.";
                 }
         ],
-    has static door open;
+    has static door open concealed;
 
 ! --- Bunker (Hidden Underground Facility) ---
 Object BunkerRoom "Bunker"
