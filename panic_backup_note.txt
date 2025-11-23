@@ -1,2 +1,0 @@
-# Backed up to panic.inf.backup-inline
-# About to create absolute minimal version
