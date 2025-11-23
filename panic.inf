@@ -135,17 +135,15 @@ Object TrainStation "Lobby"
     with
         description [;
             print "The historic Quakertown Train Station has been transformed into 
-                a bustling hub of retro computing enthusiasm. Tables are set up with 
-                various Atari systems and parts for the annual party. Large windows line 
-                the walls, and the old ticket counter stands prominently thru a short
-                passage way on the other side of a large room.
-                Sounds emanate from the computer systems and various gear already setup
-                and clumps of people are playing games, working on torn down computers
-                and even jamming on some musical keyboards connected to computers.
-
-                A passage to the west leads to a large room with tables and a small door
+                a bustling hub of retro computing. Tables are set up with 
+                various Atari systems for the annual party. Large windows line 
+                the walls.
+                Sounds emanate from the computer systems and clumps of people are playing 
+                games and working on systems.
+               
+                A passage to the west leads to a room with tables. A small door
                 to the north has a sign that says STORAGE and to the east is the set of
-                double doors you entered from - they lead back to the train platform.";
+                double doors you entered from - they lead back to the platform.";
             
             if (power_failed) {
                 print "^Heavy metal shutters now cover all the windows and doors, 
@@ -178,7 +176,7 @@ Object -> framedArticle "framed newspaper article"
         description [;
             print "^The yellowed newspaper article, dated September 15th, 1989, is preserved 
             behind glass in a simple wooden frame. The headline reads:^";
-            print "^    QUAKERTOWN STATION RETURNS TO CIVILIAN CONTROL^";
+            print "^    QUAKERTOWN STATION BACK TO CIVILIAN CONTROL^";
             print "^The article explains that the station, which had served as a classified 
             military communications relay since 1945, was finally being decommissioned 
             after 44 years of secret operation. The facility, code-named ~IRON HORSE~, 
@@ -194,7 +192,7 @@ Object -> framedArticle "framed newspaper article"
             return true;
         ],
         before [;
-            Take: "The frame is securely mounted to the wall.";
+            Take: "The frame is securely welded to the wall.";
         ],
     has static;
 
@@ -210,11 +208,8 @@ Object -> articlePlaque "small brass plaque"
     has static;
 
 
-!
-                                                                                    
 
-!
-!
+
 
 
 ! --- Ticket Office (Swap Meet Area) ---
@@ -547,8 +542,8 @@ Object PowerFailureDaemon "power failure daemon"
 !==============================================================================
 [ Initialise;
     print "[DEBUG Initialise] Starting...^";
-    print "[DEBUG] TrainStation object = ", (object) TrainStation, " (", TrainStation, ")^";
-    print "[DEBUG] TrainStation provides cheap_scenery? ", (TrainStation provides cheap_scenery), "^";
+!    print "[DEBUG] TrainStation object = ", (object) TrainStation, " (", TrainStation, ")^";
+!    print "[DEBUG] TrainStation provides cheap_scenery? ", (TrainStation provides cheap_scenery), "^";
     
     location = TrainStation;
     
@@ -556,8 +551,8 @@ Object PowerFailureDaemon "power failure daemon"
     ! 1 = normal (brief - full on first visit), 2 = long (verbose - always full), 3 = short (superbrief - never full)
     lookmode = 1;
     
-    print "[DEBUG] location is now: ", (object) location, " (", location, ")^";
-    print "[DEBUG] CheapScenery.found_in called, location=", (name) location, "^";
+!    print "[DEBUG] location is now: ", (object) location, " (", location, ")^";
+!    print "[DEBUG] CheapScenery.found_in called, location=", (name) location, "^";
     
     ! Start the power failure daemon
     StartDaemon(PowerFailureDaemon);
