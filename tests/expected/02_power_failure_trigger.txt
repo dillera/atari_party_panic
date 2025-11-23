@@ -1,0 +1,59 @@
+Using normal formatting.
+Loading ../panic.z3.
+ Lobby                                                                                                                                                                                                    Score: 0        Moves: 0
+
+Welcome to Atari Party Panic!
+
+You've been looking forward to the Atari Party meetup all year.
+Finally, a chance to meet other enthusiasts and maybe find that rare
+piece of hardware you've been searching for. The historic Quakertown
+Train Station is the perfect venue for such an event... Right?
+
+Lobby
+The historic Quakertown Train Station has been transformed into a bustling hub of retro computing enthusiasm. Tables are set up with various Atari systems and parts for the annual party. Large windows line the walls, and the old
+ticket counter stands prominently at one end.
+Sunlight streams through the tall Victorian windows, highlighting the station's blend of 1880s architecture and 1980s technology. A framed newspaper article hangs prominently near the ticket counter.
+
+You can see a small brass plaque, a framed newspaper article and a Overhead Lights (providing light) here.
+
+>  Lobby                                                                                                                                                                                                    Score: 0        Moves: 1
+
+Lobby
+The historic Quakertown Train Station has been transformed into a bustling hub of retro computing enthusiasm. Tables are set up with various Atari systems and parts for the annual party. Large windows line the walls, and the old
+ticket counter stands prominently at one end.
+Sunlight streams through the tall Victorian windows, highlighting the station's blend of 1880s architecture and 1980s technology. A framed newspaper article hangs prominently near the ticket counter.
+
+You can see a small brass plaque, a framed newspaper article and a Overhead Lights (providing light) here.
+
+>  Lobby                                                                                                                                                                                                    Score: 0        Moves: 2
+
+Nothing happens.
+
+>  Lobby                                                                                                                                                                                                    Score: 0        Moves: 3
+
+Nothing happens.
+
+>  Lobby                                                                                                                                                                                                    Score: 0        Moves: 4
+
+Nothing happens.
+
+Suddenly, the lights flicker and go out! Emergency lighting comes on, casting an eerie glow. There's a loud series of mechanical thuds as heavy metal shutters slam down over all the windows and doors!
+
+>  Lobby                                                                                                                                                                                                    Score: 0        Moves: 5
+
+Nothing happens.
+
+>  Lobby                                                                                                                                                                                                    Score: 0        Moves: 6
+
+Lobby
+The historic Quakertown Train Station has been transformed into a bustling hub of retro computing enthusiasm. Tables are set up with various Atari systems and parts for the annual party. Large windows line the walls, and the old
+ticket counter stands prominently at one end.
+Heavy metal shutters now cover all the windows and doors, their suddenly-revealed presence transforming the quaint old station into something far more military. Emergency lights cast everything in an eerie blue glow.
+
+You can see a small brass plaque, a framed newspaper article and a Overhead Lights (providing light) here.
+
+>  Lobby                                                                                                                                                                                                    Score: 0        Moves: 7
+
+The security shutters are locked tight over the doorway! You can't get out.
+
+> Are you sure you want to quit? 

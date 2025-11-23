@@ -1,0 +1,8 @@
+x ataris
+x systems
+x windows
+x counter
+x shutters
+x lights
+quit
+y

@@ -30,18 +30,14 @@ System_file;
 ._next_obj;
 				_add_obj =  _addr --> _i;
 				if(_add_obj) {
-#IfDef DEBUG_SCOPE;
-					print _i, ": ", _add_obj, "^";
-#EndIf;
 					_n = scope_objects;
 					_PutInScope(_add_obj);
 					if(scope_objects > _n && _add_obj has reactive)
 						_PerformAddToScope(_add_obj);
-
-					! Get the first child of _add_obj. If no children, skip call to _SearchScope
-					@get_child _add_obj -> _add_obj ?~_no_child;
-					_SearchScope(_add_obj); ! _add_obj is now child(_add_obj)
-._no_child;
+					_SearchScope(child(_add_obj));
+#IfDef DEBUG_SCOPE;
+					print _i, ": ", _add_obj, "^";
+#EndIf;
 				}
 !			}
 			@inc_chk _i _len ?~_next_obj;
@@ -51,15 +47,14 @@ System_file;
 ];
 
 [ _SearchScope p_obj p_risk_duplicate p_no_add _child;
-	if(p_obj == 0 ) rtrue;
 #IfDef DEBUG_SCOPE;
 #IfDef DEBUG;
-	print "_SearchScope adding ",(object) p_obj," (", p_obj,") and siblings to scope. Action = ", (DebugAction) action, "^";
+	if(p_obj) print "_SearchScope adding ",(object) p_obj," (", p_obj,") and siblings to scope. Action = ", (DebugAction) action, "^";
 #IfNot;
-	print "_SearchScope adding ",(object) p_obj," (", p_obj,") and siblings to scope. Action = ", action, "^";
+	if(p_obj) print "_SearchScope adding ",(object) p_obj," (", p_obj,") and siblings to scope. Action = ", action, "^";
 #EndIf;
 #EndIf;
-._next_sibling;
+	while(p_obj) {
 		if(scope_objects >= MAX_SCOPE) {
 #IfTrue RUNTIME_ERRORS > RTE_MINIMUM;
 			_RunTimeError(ERR_SCOPE_FULL);
@@ -73,14 +68,12 @@ System_file;
 		! Add_to_scope
 		if(p_no_add == 0 && p_obj has reactive) _PerformAddToScope(p_obj);
 
-		! Get first child. If no children, don't call SearchScope
-		@get_child p_obj -> _child ?~_no_child;
-		if(p_obj has supporter or transparent || (p_obj has container && p_obj has open))
+		_child = child(p_obj);
+		if(_child ~= 0 && (p_obj has supporter or transparent || (p_obj has container && p_obj has open)))
 			_SearchScope(_child, p_risk_duplicate, p_no_add); ! Add contents
 
-._no_child;
-		! Get next sibling. If found, loop back
-		@get_sibling p_obj -> p_obj ?_next_sibling;
+		p_obj = sibling(p_obj);
+	}
 ];
 
 [_PutInScope p_obj p_risk_duplicate _i;
@@ -318,6 +311,9 @@ Constant AddToScope = _PutInScope;
 	! The routine returns true or false.
 	!print "TestScope ", (object) p_obj, "^";
 
+	! special case for debugging verbs; everything is in scope
+	if(meta) rtrue;
+
 	if(p_actor == 0)
 		p_actor = player;
 
@@ -433,8 +429,9 @@ Constant AddToScope = _PutInScope;
 	!
 	! No return value
 
-	! Get the first child. If no children, return
-	@get_child p_obj -> _child ?~rtrue;
+	! is there a child?
+	_child = child(p_obj);
+	if(_child == nothing) return;
 
 	! add the child (will also add all siblings)
 	_SearchScope(_child);

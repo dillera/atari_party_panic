@@ -95,10 +95,10 @@ Verb 'insert'
 #Ifdef OPTIONAL_FLEXIBLE_INVENTORY;
 Verb 'inventory' 'i//'
 	* -> Inv
-	* 'tall'/'wide'                             -> Inv;
+	* 'tall'/'wide' -> Inv;
 #Ifnot;
 Verb 'inventory' 'i//'
-	*                                           -> Inv;
+	* -> Inv;
 #Endif;
 
 Verb 'jump'
@@ -145,7 +145,7 @@ Verb 'put' 'place'
 Verb 'read'
 	* noun                                      -> Examine
 	* 'about' topic 'in' noun                   -> Consult reverse
-	* topic 'in' noun                           -> Consult reverse;
+	* topic 'in' noun                           -> Consult;
 
 Verb 'remove'
 	* worn                                      -> Disrobe
@@ -218,7 +218,7 @@ Verb 'turn' 'rotate' 'screw' 'twist' 'unscrew'
 Verb 'unlock'
 	* noun 'with' held                          -> Unlock;
 
-Verb 'wait' 'z//'
+Verb 'wait' 'z'
 	*                                           -> Wait;
 
 Verb 'wear'
@@ -516,7 +516,7 @@ Verb 'wear'
 ! 7: Second isn't supporter
 ! 8: Check if second is full
 ! 9: Default (success) message
-Array _InsertMessages static -->
+Array _InsertMessages -->
 	MSG_INSERT_ALREADY
 	MSG_INSERT_ITSELF
 	MSG_INSERT_NOT_OPEN
@@ -617,7 +617,7 @@ Array _InsertMessages static -->
 ! 7: Second isn't supporter
 ! 8: Check if second is full
 ! 9: Default (success) message
-Array _PutOnMessages static -->
+Array _PutOnMessages -->
 	MSG_PUTON_ALREADY
 	MSG_PUTON_ITSELF
 	0
@@ -635,9 +635,8 @@ Array _PutOnMessages static -->
 ];
 
 [ RemoveSub _i;
-	if(noun == player)
-		<<Exit second>>;
 	_i = parent(noun);
+	if (_i has container && _i hasnt open) { PrintMsg(MSG_REMOVE_CLOSED, _i); rtrue; }
 	if (_i ~= second) return MSG_REMOVE_NOT_HERE;
 	if(TryToTakeNoun() ~= false) rtrue;
 	action = ##Remove; if (AfterRoutines()) rtrue;
@@ -819,7 +818,8 @@ Verb 'buy' 'purchase'
 	* noun                                      -> Buy;
 
 Verb 'consult'
-	* noun 'about'/'on' topic                   -> Consult;
+	* noun 'about' topic                        -> Consult
+	* noun 'on' topic                           -> Consult;
 
 Verb 'empty'
 	* noun                                      -> Empty
@@ -916,7 +916,7 @@ Verb 'yes' 'y//'
 	<EmptyT noun FAKE_D_OBJ>;
 ];
 
-[ EmptyTSub _i _n _obj _recipient;
+[ EmptyTSub _i _recipient;
 	if(noun == second) return MSG_EMPTY_WOULDNT_ACHIEVE;
 	if(noun hasnt container) { PrintMsg(MSG_EMPTY_NOT_CONTAINER, noun); rtrue; }
 	if(noun hasnt open) {
@@ -927,19 +927,13 @@ Verb 'yes' 'y//'
 		_recipient = DirPropToFakeObj(selected_direction);
 	else
 		_recipient = second;
-	_obj = child(noun);
-	if(_obj == 0) { PrintMsg(MSG_EMPTY_ALREADY_EMPTY, noun); rtrue; }
-	while(_obj ~= 0 && _n<MAX_SCOPE) {
-		empty_arr-->_n = _obj;
-		_n++;
-		_obj = sibling(_obj);
-	}
-	for(_i=0: _i<_n: _i++) {
-		_obj = empty_arr-->_i;
-		if(_obj in noun) {
-			if(keep_silent == 0) print (name) _obj, ": ";
-			<Transfer _obj _recipient>;
-		}
+	_i = child(noun);
+	if(_i == 0) { PrintMsg(MSG_EMPTY_ALREADY_EMPTY, noun); rtrue; }
+	while(_i ~= 0) {
+		if(keep_silent == 0) print (name) _i, ": ";
+		<Transfer _i _recipient>;
+		if(_i in noun || _i in player) rtrue;
+		_i = child(noun);
 	}
 	run_after_routines_msg = 1;
 ];
@@ -1133,7 +1127,7 @@ Verb meta 'quit' 'q//'
 		PANum(_score_sum);
 		PrintMsg(MSG_FULLSCORE_ACTIONS);
 	}
-	new_line;
+	@new_line;
 	PANum(score);
 	return MSG_FULLSCORE_END;
 ];
@@ -1240,8 +1234,6 @@ Verb meta 'quit' 'q//'
 	#EndIf;
 	#IfDef Headline;
 		print (string) Headline;
-	#IfNot;
-		new_line;
 	#EndIf;
 #EndIf;
 	print "Release ", (0-->1) & $03ff, " / Serial number ";
@@ -1250,23 +1242,27 @@ Verb meta 'quit' 'q//'
 	inversion;
 	print " PunyInform v", PUNYINFORM_MAJOR_VERSION, (char) '.', PUNYINFORM_MINOR_VERSION;
 	if(PUNYINFORM_PATCH_VERSION)
-		print (char) '.', PUNYINFORM_PATCH_VERSION;
+		print ".", PUNYINFORM_PATCH_VERSION;
 #Ifdef PUNYINFORM_VERSION_SUFFIX;
 	print (string) PUNYINFORM_VERSION_SUFFIX;
 #EndIf;
-	print (char) ' ';
+	_i = 0;
 #IfDef STRICT_MODE;
 	#IfV5;
-	print (char) 'S';
+	print " S";
+	_i = 1;
 	#EndIf;
 #EndIf;
 #IfDef DEBUG;
-	print (char) 'D';
+	if(_i == 0) print " ";
+	print "D";
+	_i = 1;
 #EndIf;
 #IfTrue RUNTIME_ERRORS > 0;
-	print (char) 'R';
+	if(_i == 0) print " ";
+	print "R";
 #EndIf;
-	new_line;
+	@new_line;
 ];
 
 [ VersionSub;
@@ -1344,7 +1340,7 @@ Verb meta 'verify'
 	objectloop (i has moved) {
 		j = parent(i);
 		if(j) {
-			if(f == 0) new_line;
+			if(f == 0) @new_line;
 			f = 1;
 			print "- ", (the) i, "   ";
 			if (j == player) {
@@ -1359,7 +1355,7 @@ Verb meta 'verify'
 			else if(j has supporter) print "(on ", (the) j, ")";
 			else if(j has enterable) print "(in ", (the) j, ")";
 			else print "(lost)";
-			new_line;
+			@new_line;
 		}
 	}
 	if(f == 0) "none.";
@@ -1367,7 +1363,7 @@ Verb meta 'verify'
 #Endif; ! NO_PLACES
 
 [ ScriptOnSub;
-	transcript_mode = (HDR_GAMEFLAGS-->0) & 1;
+	transcript_mode = ((HDR_GAMEFLAGS-->0) & 1);
 	if (transcript_mode) "Transcripting is already on.";
 	@output_stream 2;
 	if (((HDR_GAMEFLAGS-->0) & 1) == 0) "Attempt to begin transcript failed.";
@@ -1421,21 +1417,10 @@ Verb meta 'purloin'
 
 Verb meta 'tree'
 	*                                           -> Tree
-	* number                                    -> Tree
 	* noun                                      -> Tree;
-
-Verb meta 'forest'
-	*                                           -> Forest;
-
-Verb meta 'rooms'
-	*                                           -> Rooms
-	* topic                                     -> Rooms;
 
 Verb meta 'gonear'
 	* noun                                      -> GoNear;
-
-Verb meta 'goto'
-	* topic                                     -> Goto;
 
 Verb meta 'debug'
 	*                                           -> Debug
@@ -1461,62 +1446,7 @@ Global scope_cnt;
 [ GoNearSub _obj;
 	_obj = noun;
 	while(parent(_obj) ~= 0) _obj = parent(_obj);
-	if(_obj == noun) print_ret (The) noun, " is not in anything!";
 	PlayerTo(_obj);
-];
-
-#Ifndef GOTOSUB_BUFFER_SIZE;
-Constant GOTOSUB_BUFFER_SIZE 80;
-#Endif;
-
-Array _GotoSubBuffer --> (1 + (GOTOSUB_BUFFER_SIZE + 1)/2); ! Add an extra word of constant has odd value
-
-
-#Ifdef DebugIsARoom;
-[ _RoomLike p_obj _verdict _return_code;
-#IfNot;
-[ _RoomLike p_obj _verdict;
-#Endif;
-
-	! Return true if p_obj seems to be a room
-	if(p_obj > Directions && p_obj <= top_object &&  p_obj in nothing
-			&& (~~(p_obj provides describe or life or found_in))
-			&& (~~DebugParseNameObject(p_obj))) {
-		if(p_obj has edible or talkable or supporter or container or transparent
-				or concealed or scenery or static or animate or clothing
-				or pluralname or switchable or door or lockable)
-			jump _decided;
-#Ifndef OPTIONAL_NO_DARKNESS;
-		if(p_obj == thedark) jump _decided;
-#Endif;
-		_verdict = true;
-	}
-._decided;
-#Ifdef DebugIsARoom;
-	_return_code = DebugIsARoom(p_obj, _verdict);
-	if(_return_code > 0)
-		_verdict = 2 - _return_code;
-#Endif;
-	return _verdict;
-];
-
-[ GotoSub _obj;
-	if(consult_words == 1) {
-		_obj = TryNumber(consult_from);
-		if(_obj > 0) {
-			if(_RoomLike(_obj))
-				jump _gotoObj;
-			jump _not_a_room;
-		}
-	}
-	_obj = _GotoRoomsHelper(true);
-	if(_obj == 0)
-		jump _not_a_room;
-._gotoObj;
-	PlayerTo(_obj);
-	rtrue;
-._not_a_room;
-	"That doesn't seem to be a room.";
 ];
 
 [ PronounsSub;
@@ -1546,7 +1476,7 @@ Array _GotoSubBuffer --> (1 + (GOTOSUB_BUFFER_SIZE + 1)/2); ! Add an extra word 
 [ _ScopeSubHelper p_obj;
 	print scope_cnt++,": ", (a) p_obj, " (", p_obj, ")";
 	if(ObjectIsUntouchable(p_obj, true)) print " [untouchable]";
-	new_line;
+	@new_line;
 ];
 
 [ ScopeSub;
@@ -1555,141 +1485,29 @@ Array _GotoSubBuffer --> (1 + (GOTOSUB_BUFFER_SIZE + 1)/2); ! Add an extra word 
 	if(scope_cnt < 2) "Nothing in scope.^";
 ];
 
-[ _TreeSubHelper p_parent p_indent _x _i;
+[ TreeSub _obj _p;
+	_obj = noun;
+	if(_obj==0) _obj = real_location;
+	print (name) _obj;
+	_p = parent(_obj);
+	if(_p) {
+		print " (";
+		if(_p has supporter)
+			@print_char 'o';
+		else
+			@print_char 'i';
+		print "n ", (name) _p, ")";
+	}
+	@new_line;
+	TreeSubHelper(_obj, 1);
+];
+
+[TreeSubHelper p_parent p_indent _x _i;
 	objectloop(_x in p_parent) {
 		for(_i = 0 : _i < p_indent : _i++) print "  ";
-		print (a) _x, " (", _x, ")^";
-		if(child(_x)) _TreeSubHelper(_x, p_indent + 1);
+		print (name) _x, " (", _x, ")^";
+		if(child(_x)) TreeSubHelper(_x, p_indent + 1);
 	}
-];
-
-Constant _REAL_LOCATION_TEXT " *** real_location ***";
-
-[ TreeSub p_real_location _p;
-	if(parsed_number > 0 && noun == parsed_number) {
-		if(parsed_number < Directions || parsed_number > top_object)
-			"That doesn't seem to be an object.";
-	}
-
-	if(noun==0) noun = real_location;
-	if(noun in nothing)
-		print (name) noun;
-	else
-		print (a) noun;
-	print " (", noun, ")";
-	_p = parent(noun);
-	if(_p) {
-		if(_p has supporter)
-			print " on";
-		else
-			print " in";
-		print " ~", (name) _p, "~ (", _p, ")";
-	}
-	if(noun == p_real_location) {
-#IfV5;
-		style bold;
-#Endif;
-		print (string) _REAL_LOCATION_TEXT;
-#IfV5;
-		style roman;
-#Endif;
-	}
-	new_line;
-	_TreeSubHelper(noun, 1);
-];
-
-[ ForestSub;
-	for(noun=Directions : noun<= top_object: noun++)
-		if(noun in nothing)
-			TreeSub(real_location);
-];
-
-[ _GotoRoomsHelper p_return_first _obj _first _i _j _k _m _n _t _count 
-		_first_typed_char _first_typed_char_upcase _last_start_pos;
-	! p_return_first = true: return the first matching room
-	! p_return_first = false: print all matching rooms
-	_t = _GotoSubBuffer + 2;
-	if(consult_from) {
-		_first = WordAddress(consult_from);
-		if(_first->0 == '*') _first++; ! Ignore '*' at start of search string
-		_i = consult_from + consult_words - 1;
-		_count = WordAddress(_i) + WordLength(_i) - _first;
-		if(_first->(_count-1) == '*') _count--;  ! Ignore '*' at end of search string
-		_first_typed_char = _first->0;
-		_first_typed_char_upcase = _first_typed_char;
-		if(_first_typed_char_upcase < 123 && _first_typed_char_upcase > 96) {
-			_first_typed_char_upcase = _first_typed_char_upcase - 32;
-		}
-		
-	}
-	_obj=Directions + 1;
-!	for(_obj=Directions + 1 : _obj<= top_object: _obj++)
-._check_next_obj;
-		if(_RoomLike(_obj)) {
-
-			if(_count > 0) {
-				@output_stream 3 _GotoSubBuffer;
-				print (name) _obj;
-				@output_stream -3;
-				_k = _GotoSubBuffer-->0;
-#IfTrue RUNTIME_ERRORS > RTE_MINIMUM;
-				if(_k > GOTOSUB_BUFFER_SIZE) {
-					_RunTimeError(ERR_BUFFER_OVERRUN, _obj);
-					rtrue;
-				}
-#Endif;
-				_last_start_pos = _k - _count;
-
-				! Check if search string is part of room name
-				_j = 0;
-				!for(_j=0:_j<=_last_start_pos:_j++) {
-._match_loop;
-					if(_t->_j == _first_typed_char or _first_typed_char_upcase) {
-						! Found a match for first character
-						if(_count == 1) jump _found_match;
-						_m = _count - 1;
-						_i = 1;
-						_n = _j + 1;
-!							for(_i=1,_n=_j+1:_i<_count:_i++,_n++) {
-._match_next_char;
-							_k = _t->_n;
-							if(_k < 91 && _k > 64)
-								_k = _k + 32;
-							if(_k ~= _first->_i) {
-								jump _leave_inner_match_loop;
-							}
-							_n++;
-							@inc_chk _i _m ?~_match_next_char;
-!							}
-						jump _found_match;
-._leave_inner_match_loop;
-					}
-					@inc_chk _j _last_start_pos ?~_match_loop;
-!				}
-				jump _end_of_obj_loop;
-			} 
-._found_match;		
-			if(p_return_first)
-				return _obj;
-			print (name) _obj, " (", _obj, ")";
-			if(_obj == real_location) {
-#Ifv5;
-				style bold;
-#Endif;
-				print (string) _REAL_LOCATION_TEXT;
-#Ifv5;
-				style roman;
-#Endif;
-			}
-			new_line;
-		}
-._end_of_obj_loop;
-		@inc_chk _obj top_object ?~_check_next_obj;
-	return false;
-];
-
-[ RoomsSub;
-	_GotoRoomsHelper();
 ];
 
 #Ifdef OPTIONAL_MANUAL_REACTIVE;
@@ -1783,16 +1601,17 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 ];
 
 [ _ListObjsInOnMsg p_parent;
-	print "^";
+	if(newline_flag)
+		print "^";
 	if(p_parent has supporter) print "On "; else print "In ";
 	print (the) p_parent, " you can ";
 	if(also_flag) print "also ";
 	print "see ";
 ];
 
-[ Look _obj _top_ceil _ceil _describe_room _you_can_see_1 _you_can_see_2 
-		_desc_prop _last_level _action;
-	if(input_action == ##Look) PrintMsg(MSG_LOOK_BEFORE_ROOMNAME);
+[ Look _obj _top_ceil _ceil _describe_room
+	_you_can_see_1 _you_can_see_2 _desc_prop _last_level _action;
+	PrintMsg(MSG_LOOK_BEFORE_ROOMNAME);
 	if((lookmode == 1 && location hasnt visited) || lookmode == 2) _describe_room = true;
 #IfV5;
 	style bold;
@@ -1820,14 +1639,15 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 		}
 #EndIf;
 		_PrintObjName(location);
-	} else
+	} else {
 		print (The) _ceil;
+	}
 #IfV5;
 	style roman;
 #EndIf;
 #Ifndef OPTIONAL_NO_DARKNESS;
 	if(location == thedark) {
-		new_line;
+		@new_line;
 		PrintOrRun(location, description);
 		jump _EndOfLookRoutine;
 	}
@@ -1841,46 +1661,51 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 		print (the) _obj, ")";
 		_obj = parent(_obj);
 	}
-	new_line;
 	while(_ceil ~= player or 0) {
 		if(_describe_room) {
 			if(_ceil == location) {
+				@new_line;
 				PrintOrRun(_ceil, description);
 			} else if(_ceil.inside_description ~= 0 or NULL) {
-				if(_ceil ~= _top_ceil) new_line;
+				@new_line;
 				PrintOrRun(_ceil, inside_description);
 			}
-		}
+		} else if(_ceil == location)
+			@new_line;
 
 		also_flag = false;
 		! write intial and describe messages in a new paragraph
-		objectloop(_obj in _ceil)
-			if(_obj hasnt scenery or concealed && _obj ~= player) {
-				give _obj workflag;
-				if(_obj.&describe) {
-					if(PrintOrRun(_obj, describe, 0)) {
-						give _obj ~workflag;
-						also_flag = true;
-						continue;
-					}
-				}
-				if(_obj has container or door) {
-					_desc_prop = when_closed;
-					if(_obj has open)
-						_desc_prop = when_open;
-				} else if(_obj has switchable) {
-					_desc_prop = when_off;
-					if(_obj has on)
-						_desc_prop = when_on;
-				} else
-					_desc_prop = initial;
-				if(_obj.&_desc_prop && (_obj hasnt moved || _desc_prop == when_off)) { ! Note: when_closed in an alias of when_off
+		objectloop(_obj in _ceil && _obj hasnt scenery or concealed && _obj ~= player) {
+			give _obj workflag;
+			if(_obj.&describe) {
+				if(PrintOrRun(_obj, describe, 0)) {
 					give _obj ~workflag;
-					new_line;
-					PrintOrRun(_obj, _desc_prop);
 					also_flag = true;
+					continue;
 				}
 			}
+			if(_obj has container or door) {
+				if(_obj has open) {
+					_desc_prop = when_open;
+				} else {
+					_desc_prop = when_closed;
+				}
+			} else if(_obj has switchable) {
+				if(_obj has on) {
+					_desc_prop = when_on;
+				} else {
+					_desc_prop = when_off;
+				}
+			} else {
+				_desc_prop = initial;
+			}
+			if(_obj.&_desc_prop && (_obj hasnt moved || _desc_prop == when_off)) { ! Note: when_closed in an alias of when_off
+				give _obj ~workflag;
+				@new_line;
+				PrintOrRun(_obj, _desc_prop);
+				also_flag = true;
+			}
+		}
 
 		! write any remaining objects in a new paragraph
 		if(parent(_ceil) == 0) {
@@ -1890,19 +1715,24 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 			_you_can_see_1 = _ListObjsInOnMsg;
 			_you_can_see_2 = ".^";
 		}
+		newline_flag = true;
 		if(PrintContents(_you_can_see_1, _ceil, true)) print (string) _you_can_see_2;
 
 
 #IfDef OPTIONAL_PRINT_SCENERY_CONTENTS;
-		objectloop(_obj in _ceil)
-			if(_obj has scenery &&
-					(_obj has supporter ||
-						(_obj has container && _obj has transparent or open)) &&
-						child(_obj) ~= 0 &&
-						IndirectlyContains(_obj, player) == false) {
-				if(PrintContents(_ListObjsInOnMsg, _obj))
-					print ".^";
+		newline_flag = true;
+		objectloop(_obj in _ceil && _obj has scenery &&
+				(_obj has supporter ||
+					(_obj has container && _obj has transparent or open)) &&
+					child(_obj) ~= 0 &&
+					IndirectlyContains(_obj, player) == false) {
+			if(PrintContents(_ListObjsInOnMsg, _obj)) {
+				print (string) ". ";
+				newline_flag = false;
 			}
+		}
+		if(newline_flag == false)
+			print "^";
 #EndIf;
 
 		! Descend one level
@@ -2138,8 +1968,6 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 
 	if(AfterRoutines()) rtrue;
 	if(keep_silent) rtrue;
-	
-	PrintMsg(MSG_LOOK_BEFORE_ROOMNAME);
 	Look();
 ];
 

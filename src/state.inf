@@ -1,0 +1,36 @@
+! State Management Module
+! Atari Party Panic - Global Game State
+! This module manages all game state variables and provides clean interfaces
+
+! Core game state flags
+Global power_failed = false;
+Global doors_locked = false;
+Global game_turns = 0;
+
+! Puzzle progression flags
+Global pokey_installed = false;
+Global rug_moved = false;
+Global bunker_found = false;
+
+! Narrative progress trackers
+Global logbook_entry_read = 0;
+Global diary_entry_read = 0;
+
+! State modification functions - centralized state changes
+[ TriggerPowerFailure;
+    power_failed = true;
+    doors_locked = true;
+];
+
+[ InstallPokey;
+    pokey_installed = true;
+];
+
+[ RestorePower;
+    power_failed = false;
+    doors_locked = false;
+];
+
+[ IsRugMoved; return rug_moved; ];
+[ IsBunkerFound; return bunker_found; ];
+

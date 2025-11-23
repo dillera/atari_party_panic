@@ -1,0 +1,16 @@
+! Configuration Module
+! Atari Party Panic - Game Constants and Settings
+! This module defines all game-wide constants and initial configuration
+
+! Game metadata
+Constant Story "Atari Party Panic";
+Constant Headline "^An Interactive Fiction by Andrew Diller^";
+
+! Initial game setup
+! Constant INITIAL_LOCATION_VALUE = TrainStation; ! Set in Initialise
+Constant STATUSLINE_SCORE;
+Constant MAX_SCORE = 50;
+
+! Debug settings - Change to 0 when releasing
+Constant RUNTIME_ERRORS = 2;
+Constant DEBUG;

@@ -1,0 +1,10 @@
+look
+north
+look
+examine rug
+pull rug
+look
+down
+look
+quit
+y

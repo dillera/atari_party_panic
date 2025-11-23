@@ -54,6 +54,31 @@ Include "grammar.h";
 ];
 #Endif;
 
+[ IndirectlyContains p_o1 p_o2;
+	! Does o1 indirectly contain o2?  (Same as testing if o1 is one of the ancestors of o2.)
+	@jz p_o2 ?rfalse;
+.recheck;
+	if (p_o1 == p_o2) rtrue;
+	p_o2 = parent(p_o2);
+	@jz p_o2 ?~recheck;
+	rfalse;
+];
+
+[ CommonAncestor p_o1 p_o2 _i _j;
+	! Find the nearest object indirectly containing o1 and o2,
+	! or return 0 if there is no common ancestor.
+	_i = p_o1;
+	while (_i) {
+		_j = p_o2;
+		while (_j) {
+			if (_j == _i) return _i;
+			_j = parent(_j);
+		}
+		_i = parent(_i);
+	}
+	return 0;
+];
+
 #Ifv3;
 [ ChangeFgColour p_colour;
 	p_colour = 1; ! Avoid warning
@@ -61,12 +86,6 @@ Include "grammar.h";
 #Endif;
 
 #IfV5;
-
-[ OzmooColoursAvailable;
-	if($3a-->0 == $4f5a)
-		rtrue;
-	rfalse;
-];
 
 [ ClearScreen window;
 	if (clr_on) {
@@ -158,22 +177,16 @@ Constant ONE_SPACE_STRING = " ";
 
 [ _PrintStatusLineTime _h _pm;
 	if (screen_width > 29) {
-#Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
-		parser_one = 1;
-#Endif;
 		if (screen_width > 39) {
 			if (screen_width > 66) {
 				! Width is 67-, print "Time: 12:34 pm" with some space to the right
 				_PrintSpacesOrMoveBack(20, TIME__TX);
-#Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
-				parser_one = 6;
-#Endif;
 			} else {
-				! Width is 40-66, print "Time: 12:34 pm" one character fromm right edge
+				! Width is 40-66, print "Time: 12:34 pm" at right edge
 				_PrintSpacesOrMoveBack(15, TIME__TX);
 			}
 		} else {
-			! Width is 30-, print "12:34 pm" one character from right edge
+			! Width is 30-, print "12:34 pm" at right edge
 			_PrintSpacesOrMoveBack(9, ONE_SPACE_STRING);
 		}
 		_h = status_field_1;
@@ -195,24 +208,6 @@ Constant ONE_SPACE_STRING = " ";
 	}
 ];
 
-[ _NumberLength p_number _length;
-	_length = 1;
-	if(p_number < 0) { _length++; p_number = -p_number; }
-	if(p_number > 9) {
-		_length++;
-		if(p_number > 99) {
-			_length++;
-			if(p_number > 999) {
-				_length++;
-				if(p_number > 9999) {
-					_length++;
-				}
-			}
-		}
-	}
-	return _length;
-];
-
 [ _PrintStatusLineScore;
 #Ifdef OPTIONAL_SL_NO_SCORE;
 #Ifndef OPTIONAL_SL_NO_MOVES;
@@ -221,28 +216,16 @@ Constant ONE_SPACE_STRING = " ";
 		if (screen_width < 30) {
 			! Width is 25-29, only print moves as "0"
 			_PrintSpacesOrMoveBack(4, ONE_SPACE_STRING);
-#Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
-			parser_one = 4;
-#Endif;
 		} else {
 			! Width is 30-, print "Moves: 0"
 			if (screen_width > 52) {
 				! Width is 53+, leave some space to the right
 				_PrintSpacesOrMoveBack(15, MOVES__TX);
-#Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
-				parser_one = 8;
-#Endif;
 			} else {
 				_PrintSpacesOrMoveBack(11, MOVES__TX);
-#Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
-				parser_one = 4;
-#Endif;
 			}
 		}
 		print status_field_2;
-#Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
-		parser_one = parser_one - _NumberLength(status_field_2);
-#Endif;
 	}
 #Endif; ! Ifndef NO_MOVES
 #Ifnot;
@@ -252,44 +235,22 @@ Constant ONE_SPACE_STRING = " ";
 			! Width is 25-29, only print score as "0", no moves
 			_PrintSpacesOrMoveBack(3, ONE_SPACE_STRING);
 			print status_field_1;
-#Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
-			parser_one = 3 - _NumberLength(status_field_1);
-#Endif;
 		} else {
 #Ifdef OPTIONAL_SL_NO_MOVES;
 	! Show score only
 			! Width is 30-, print "Score: 0"
-			if(screen_width < 55) {
+			if(screen_width < 55)
 				_PrintSpacesOrMoveBack(10, SCORE__TX);
-#Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
-				parser_one = 3;
-#Endif;
-			} else {
+			else
 				_PrintSpacesOrMoveBack(13, SCORE__TX);
-#Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
-				parser_one = 6;
-#Endif;
-			}
 			print status_field_1;
-#Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
-			parser_one = parser_one - _NumberLength(status_field_1);
-#Endif;
 #Ifnot;
 	! Show score + moves
-#Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
-			parser_one = 7 - _NumberLength(status_field_1);
-#Endif;
 			if (screen_width > 66) {
 				! Width is 67-, print "Score: 0 Moves: 0"
 				_PrintSpacesOrMoveBack(28, SCORE__TX);
 				print status_field_1;
-#Ifdef OPTIONAL_NON_FLASHING_STATUSLINE;
 				_PrintSpacesOrMoveBack(14, MOVES__TX);
-#Ifnot;
-				FastSpaces(parser_one - 1);
-				print (string) MOVES__TX;
-				parser_one = 7;
-#Endif;
 			} else {
 				if (screen_width > 36) {
 					! Width is 37-66, print "Score: 0/0"
@@ -302,16 +263,13 @@ Constant ONE_SPACE_STRING = " ";
 				@print_char '/';
 			}
 			print status_field_2;
-#Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
-			parser_one = parser_one - _NumberLength(status_field_2);
-#Endif;
 #Endif;
 		}
 	}
 #Endif;
 ];
 
-[ DrawStatusLine p_linefeeds _visibility_ceiling;
+[ DrawStatusLine _visibility_ceiling;
 	! For wide screens (67+ columns):
 	! * print a space before room name, and "Score: xxx  Moves: xxxx" to the right.
 	! * Room names up to 39 characters are never truncated.
@@ -320,17 +278,12 @@ Constant ONE_SPACE_STRING = " ";
 	! * Print "Score: xxx/yyyy", "xxx/yyyy", "xxx" or nothing, depending on screen width
 	! * Room names up to 21 characters are never truncated. On a 40 column screen, room names up to 24 characters are never truncated.
 
-	! If called with p_linefeeds == true, print the number of linefeeds needed
-	! to make sure text at start of game doesn't get covered by statusline
-	if(p_linefeeds) { new_line; return; }
-
 	! If there is no player location, we shouldn't try to draw status window
 	if (location == nothing || parent(player) == nothing)
 		return;
 
 	_StatusLineHeight(statusline_height);
 	_MoveCursor(1, 1); ! This also sets the upper window as active.
-	parser_one = 1000;
 #Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
 	FastSpaces(screen_width);
 	_MoveCursor(1, 1);
@@ -365,12 +318,9 @@ Constant ONE_SPACE_STRING = " ";
 	#Endif;
 #Endif;
 
-#Ifdef OPTIONAL_NON_FLASHING_STATUSLINE;
 	! Regardless of what kind of status line we have printed, print spaces to the end.
+#Ifdef OPTIONAL_NON_FLASHING_STATUSLINE;
 	_PrintSpacesOrMoveBack(-1);
-#Ifnot;
-	if(parser_one > 0 && parser_one < screen_width) 
-		FastSpaces(parser_one);
 #Endif;
 	_MainWindow(); ! set_window
 ];
@@ -476,10 +426,6 @@ Constant ONE_SPACE_STRING = " ";
 
 
 [ PrintShortName o;
-	if(caps_mode == 2) 
-		caps_mode = true;
-	else 
-		caps_mode = false;
 	if (o == 0) { print "nothing"; rtrue; }
 	switch (metaclass(o)) {
 	  Routine:  print "<routine ", o, ">"; rtrue;
@@ -491,9 +437,6 @@ Constant ONE_SPACE_STRING = " ";
 ];
 
 [ _PrintObjName p_obj p_form;
-	caps_mode = false;
-	if(p_form == FORM_CDEF)
-		caps_mode = 2;
 	if(p_obj hasnt proper) {
 		if(p_form == FORM_CDEF) {
 			print "The ";
@@ -518,53 +461,40 @@ Constant ONE_SPACE_STRING = " ";
 	return IS_STR;
 ];
 
-[ _PrintAfterEntry p_obj _contents _newline _started;
-	_newline = c_style & NEWLINE_BIT;
+[ _PrintAfterEntry p_obj;
 #Ifndef OPTIONAL_NO_DARKNESS;
 	if(p_obj has light && p_obj hasnt animate) print " (providing light)";
 #Endif;
 	if(p_obj has worn && action == ##Inv) print " (worn)";
-	if(p_obj has container) {
-		_contents = PrintContentsFromR(1, child(p_obj));
-		if(p_obj hasnt open && p_obj hasnt transparent) {
-			print " (which ",(IsorAre) p_obj," closed)";
-			if(_newline) new_line;
+	if(p_obj has container && p_obj hasnt open) print " (which is closed)";
+	if(p_obj has container && (p_obj has open || p_obj has transparent)) {
+		if(PrintContentsFromR(1, child(p_obj)) == 0) {
+			if(p_obj has openable)
+				print " (which is open but empty)";
+			if(c_style & NEWLINE_BIT)
+				new_line;
 		} else {
-			if(p_obj has openable && (p_obj has transparent || _contents == 0)) {
-				print " (which ", (IsorAre) p_obj, " ";
-				if(p_obj has open) { print "open"; _started = 1; }
-				else { print "closed"; _started = 2; }
+			if(c_style & NEWLINE_BIT == 0)
+				print " (which contains ";
+			else {
+				if(p_obj has open && p_obj has openable)
+					print " (which is open)";
+				new_line;
 			}
-			if(_contents == 0) {
-				print (char) ' ';
-				switch(_started) {
-				0: print "(which ", (IsorAre) p_obj;
-				1: print "but";
-				2: print "and";
-				}
-				print " empty)";
-				if(_newline) new_line;
-			} else {
-				if(_newline == 0) {
-					if(_started) print " and";
-					else print " (which";
-					print " contain", (SingularS) p_obj, " ";
-				} else {
-					if(_started) print (char) ')';
-					new_line;
-				}
-				c_style = c_style & ~ISARE_BIT;
-				PrintContentsFromR(0, child(p_obj));
-				if(_newline == 0) print (char) ')';
+			c_style = c_style & ~ISARE_BIT;
+			PrintContentsFromR(0, child(p_obj));
+			if(c_style & NEWLINE_BIT == 0) {
+				print (char) ')';
 			}
 		}
+
 	} else if(p_obj has supporter) {
-		if(_newline) {
+		if(c_style & NEWLINE_BIT) {
 			new_line;
 			PrintContentsFromR(0, child(p_obj));
 		} else
 			if(PrintContents(" (on which ", p_obj, ISARE_BIT)) print (char) ')';
-	} else if(_newline)
+	} else if(c_style & NEWLINE_BIT)
 		new_line;
 ];
 
@@ -869,7 +799,7 @@ Constant ONE_SPACE_STRING = " ";
 
 [ _PrintContentsShowObj p_obj;
 	! Return true if object should be shown in list, false if not
-	if(IndirectlyContains(p_obj, player) == false && ! don't print container when player in it 
+	if(p_obj ~= parent(player) && ! don't print container when player in it
 			(pc_depth > 0 || c_style & WORKFLAG_BIT == 0 || p_obj has workflag) &&
 	! Hide concealed and scenery unless taking inventory
 			(action == ##Inv || (p_obj hasnt concealed && p_obj hasnt scenery)))
@@ -934,63 +864,28 @@ Constant ONE_SPACE_STRING = " ";
 ];
 
 [ PrintOrRun p_obj p_prop p_no_string_newline _val;
-	if (p_obj.#p_prop > WORDSIZE || (_val = p_obj.p_prop) ofclass Routine) return RunRoutines(p_obj, p_prop);
+	_val = p_obj.p_prop;
+	if (p_obj.#p_prop > WORDSIZE || _val ofclass Routine) return RunRoutines(p_obj, p_prop);
 	if(_val ofclass String) {
 		print (string) _val;
 		if(p_no_string_newline == 0) new_line;
 	}
 ];
 
-[ CommonAncestor p_o1 p_o2 _i _j;
-	! Find the nearest object indirectly containing o1 and o2,
-	! or return 0 if there is no common ancestor.
-	_i = p_o1;
-	while (_i) {
-		_j = p_o2;
-		while (_j) {
-			if (_j == _i) return _i;
-			_j = parent(_j);
-		}
-		_i = parent(_i);
-	}
-	return 0;
-];
-
-[ IndirectlyContains p_o1 p_o2;
-	! Does o1 indirectly contain o2?  (Same as testing if o1 is one of the ancestors of o2.)
-	@jz p_o2 ?rfalse;
-._recheck;
-	@je p_o1 p_o2 ?rtrue;
-!	if (p_o1 == p_o2) rtrue;
-	p_o2 = parent(p_o2);
-	@jz p_o2 ?~_recheck;
-	rfalse;
-];
-
 [ MoveFloatingObjects _i _j _o _len _obj;
-	_i--;
-!	while((_obj = floating_objects-->_i) ~= 0) {
-._next_floating;
-		_i++;
-		_obj = floating_objects-->_i;
-		if(_obj == 0)
-			jump _done_floating;
-		if(parent(_obj) ~= 0 && IndirectlyContains(player, _obj))
-			jump _next_floating;
+	while((_obj = floating_objects-->_i) ~= 0) {
+		if(IndirectlyContains(player, _obj))
+			jump _continue_loop;
+		_len = _obj.#found_in;
 		if(_obj has absent)
 			jump _isnt_present;
-		_len = _obj.#found_in;
-		if(_len == 2 && UnsignedCompare(_obj.found_in, top_object) > 0) {
+		else if(_len == 2 && UnsignedCompare(_obj.found_in, top_object) > 0) {
 			if(RunRoutines(_obj, found_in))
 				jump _is_present;
 			jump _isnt_present;
 		} else {
 			_j = _obj.&found_in;
-#Ifv5;
-			@log_shift _len (-1) -> _len; ! Divide by 2
-#Ifnot;
 			_len = _len / 2;
-#Endif;
 			_len = _len - 1;
 ._check_next_value;
 				_o = _j-->_len;
@@ -1002,19 +897,18 @@ Constant ONE_SPACE_STRING = " ";
 			@dec_chk _len 0 ?~_check_next_value;
 ._isnt_present;
 			remove _obj;
-			jump _next_floating;
+			jump _continue_loop;
 ._is_present;
 			if(_obj notin location)
 				move _obj to location;
 		}
-		jump _next_floating;
-!._continue_loop;
-!		_i++;
-!	}
-._done_floating;
+._continue_loop;
+		_i++;
+	}
 	! It's not certain that scope has been modified, but PlayerTo relies on it
 	! being set.
 	scope_modified = true;
+!	print "MFO done!^";
 ];
 
 [ CalculateVisibilityCeiling;
@@ -1039,7 +933,7 @@ Constant ONE_SPACE_STRING = " ";
 	location = real_location;
 	MoveFloatingObjects(); ! Also sets scope_modified = true;
 #Ifndef OPTIONAL_NO_DARKNESS;
-	_UpdateDarkness(true);
+	_UpdateDarkness();
 #Endif;
 ._recheck_visibility_ceil;
 	_vc = CalculateVisibilityCeiling();
@@ -1073,8 +967,8 @@ Constant ONE_SPACE_STRING = " ";
 	_old_lookmode = lookmode;
 	if(p_flag==false)
 		lookmode = 2;
-	if(p_flag~=true && deadflag == GS_PLAYING)
-		Look();
+	if(p_flag==false or 2 && deadflag == GS_PLAYING)
+		<Look>;
 	lookmode = _old_lookmode;
 ];
 
@@ -1088,20 +982,17 @@ Constant ONE_SPACE_STRING = " ";
 ];
 
 #Ifndef OPTIONAL_NO_DARKNESS;
-[ _UpdateDarkness p_silent _ceil _old_darkness _darkness;
+[ _UpdateDarkness p_look _ceil _old_darkness _darkness;
 	if(location == thedark) _old_darkness = true;
 	_ceil = ScopeCeiling(player);
 	if(_LookForLightInObj(_ceil, _ceil) == false) _darkness = true;
 	if(_darkness ~= _old_darkness) scope_modified = true;
 	if(_darkness) {
-		if(_old_darkness == false && p_silent == false) PrintMsg(MSG_NOW_DARK);
 		location = thedark;
 	} else {
 		location = real_location;
-		if(_old_darkness && p_silent == false) {
-			new_line;
+		if(_old_darkness == true && p_look == true)
 			<Look>;
-		}
 	}
 ];
 
@@ -1230,7 +1121,6 @@ Include "parser.h";
 ];
 
 [ BeforeRoutines;
-	if(real_location == 0) rfalse;
 
 	GetScopeCopy(player, REACT_BEFORE_REASON); ! later used by _RunReact
 
@@ -1271,7 +1161,7 @@ Include "parser.h";
 #IfV3;
 	if(debug_flag & 1) print "(", (name) real_location, ").before()^";
 #EndIf;
-#EndIf;	
+#EndIf;
 	if(real_location.&before) {
 		if(RunRoutines(real_location, before)) rtrue;
 	}
@@ -1291,7 +1181,6 @@ Include "parser.h";
 [ AfterRoutines;
 	! react_after - Loops over the scope to find possible react_before routines
 	! to run in each object, if it's found stop the action by returning true
-	if(real_location == 0) rfalse;
 
 	GetScopeCopy(player, REACT_AFTER_REASON); ! later used by _RunReact
 
@@ -2166,21 +2055,17 @@ Include "parser.h";
 		switch (n&$C0) { 0: n=1; $40: n=2; $80: n=n&$3F; }
 	}
 ! print "CA_Pr(3) obj = ", obj,", id = ", id,", a = ", a, "^";
-	for (:m+m<n:m++) {
-		z = x-->m;
-!   print "Considering routine at ", x+2*m,": ", z, "^";
-		if (z==$ffff) rfalse;
-		switch(Z__Region(z)) {
+	for (:2*m<n:m++) {
+!   print "Considering routine at ", x+2*m,": ", x-->m, "^";
+		if (x-->m==$ffff) rfalse;
+		switch(Z__Region(x-->m)) {
 		2:
 			s = sender; sender = self; self = obj; s2 = sw__var;
 !	   switch(y) {
 !	   0:
 !		 z = indirect(x-->m);
 !	   1:
-			if(a)
-				z = indirect(z, a);
-			else
-				z = indirect(z);
+			z = indirect(x-->m, a);
 !	   2:
 !		 z = indirect(x-->m, a, b);
 !	   3:
@@ -2195,9 +2080,9 @@ Include "parser.h";
 			self = sender; sender = s; sw__var = s2;
 			if (z ~= 0) return z;
 		3:
-			print_ret (string) z;
+			print_ret (string) x-->m;
 		default:
-			return z;
+			return x-->m;
 		}
 	}
 	rfalse;
@@ -2212,12 +2097,7 @@ Include "parser.h";
 Object selfobj "you"
 	with
 		name 'me' 'myself' 'self',
-!		short_name  "yourself",
-		short_name  [; 
-			if(caps_mode) { print "You"; rtrue; }
-			print "yourself";
-			rtrue;
-		],
+		short_name  "yourself",
 		description "As good-looking as ever.",
 		before NULL,
 		after NULL,
@@ -2290,7 +2170,7 @@ Object thedark "Darkness"
 	RunEntryPointRoutine(TimePasses);
 #Endif;
 #Ifndef OPTIONAL_NO_DARKNESS;
-	_UpdateDarkness();
+	_UpdateDarkness(true);
 #Endif;
 
 	if(update_moved || child(player) ~= last_player_child or 0) {
@@ -2412,9 +2292,6 @@ Object thedark "Darkness"
 	dict_entry_size = dict_start->(_i + 1);
 	dict_start = dict_start + _i + 4;
 	dict_end = dict_start + (dict_start - 2)-->0 * dict_entry_size;
-#Ifdef OPTIONAL_EXTENDED_METAVERBS;
-	transcript_mode = (HDR_GAMEFLAGS-->0) & 1;
-#Endif;
 
 	parse->0 = MAX_INPUT_WORDS;
 #IfV5;
@@ -2446,10 +2323,8 @@ Object thedark "Darkness"
 #EndIf;
 
 #IfV5;
-	DrawStatusLine(true); ! So the first line of text isn't covered by the statusline
+	new_line; ! So the first line of text isn't covered by the statusline
 #Endif;
-	_InitObjects(); ! Give reactive attribute as needed + list floating objects
-
 	_j = Initialise();
 
 	objectloop (_i in player) give _i moved ~concealed;
@@ -2460,6 +2335,7 @@ Object thedark "Darkness"
 		@new_line;
 	}
 
+	_InitObjects(); ! after initialise since location set there
 	if(parent(player) == 0) { _i = location; location = 0; PlayerTo(_i); }
 
 	@new_line;
@@ -2484,19 +2360,6 @@ Object thedark "Darkness"
 #Endif;
 		if(parse->1 == 0) {
 			_ReadPlayerInput();
-#ifv5;
-			if(buffer->1 ~= 0 && buffer->2 == 42) { ! asterisk
-#ifnot;
-			if(buffer->1 == 42) { ! asterisk
-#endif;
-#ifdef OPTIONAL_EXTENDED_METAVERBS;
-				if(transcript_mode) PrintMsg(MSG_COMMENT_TRANSCRIPT);
-				else PrintMsg(MSG_COMMENT_NO_TRANSCRIPT);
-#Ifnot;
-				PrintMsg(MSG_COMMENT_NO_TRANSCRIPT);
-#Endif;
-				jump _abort_current_input;
-			}
 			_disallow_complex_again = false;
 #Ifdef OPTIONAL_PROVIDE_UNDO_FINAL;
 			if(parse-->1 == 'undo') {
@@ -2593,18 +2456,10 @@ Object thedark "Darkness"
 			! the first sentence in the input  has been parsed
 			! and executed. Now remove it from parse so that
 			! the next sentence can be parsed
-#Ifv5;
-			@log_shift _sentencelength 2 -> _i; ! Multiply by 4
-			_j = parse + 2;
-			_i = _i + _j;
-			_copylength = _sentencelength - _parsearraylength;
-			@log_shift _copylength 2 -> _copylength; ! Multiply by 4
-			@copy_table _i _j _copylength;
-#Ifnot;
-			_copylength = _parsearraylength + _parsearraylength;
-			for(_i = 1, _j = _sentencelength + _sentencelength + 1: _j <= _copylength: _i++, _j++)
+			_copylength = 2 * _parsearraylength + 1;
+			for(_i = 1, _j = 2 * _sentencelength + 1: _j < _copylength: _i++, _j++)
 				parse-->_i = parse-->_j;
-#Endif;
+
 			parse->1 = _parsearraylength - _sentencelength;
 			_disallow_complex_again = true; ! cannot parse "x me.g.g.g"
 		} else {

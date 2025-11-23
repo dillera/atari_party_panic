@@ -1,0 +1,16 @@
+565,567c565,575
+< 	found_in [;
+< 		if(location provides cheap_scenery) rtrue;
+< 	],
+---
+> 	found_in [;
+> 		#Ifdef DEBUG;
+> 		print "[DEBUG CheapScenery.found_in] location=", (object) location, " (", location, ")^";
+> 		if(location == 0) {
+> 			print "[DEBUG] ERROR: location is 0!^";
+> 			rfalse;
+> 		}
+> 		print "[DEBUG] Checking if location provides cheap_scenery...^";
+> 		#Endif;
+> 		if(location provides cheap_scenery) rtrue;
+> 	],

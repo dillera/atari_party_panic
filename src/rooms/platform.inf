@@ -1,0 +1,15 @@
+! Platform Room Module
+! Atari Party Panic - Station Platform
+! The outdoor platform area (becomes inaccessible after power failure)
+
+Object Platform "Station Platform"
+    with
+        description 
+            "A covered platform extends along the length of the building and beyond. The tracks, 
+            though long unused, still gleam in the light.",
+        w_to [;
+            if (power_failed) 
+                "The security shutters are locked tight over the doorway.";
+            return TrainStation;
+        ],
+    has light;

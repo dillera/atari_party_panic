@@ -1,0 +1,87 @@
+! Atari Party Panic
+! A PunyInform Interactive Fiction Game
+! Andrew Diller dillera@dillernet.com Oct 2024
+! Version 0.2 - Modular Refactor January 2025
+!
+! This is the main entry point that orchestrates all game modules.
+! Each module is a black box with a clear, documented interface.
+
+!==============================================================================
+! CONFIGURATION
+!==============================================================================
+! Game metadata and constants
+Include "src/config.inf";
+
+!==============================================================================
+! PUNYINFORM LIBRARY
+!==============================================================================
+! Load PunyInform globals and core library
+Include "lib/globals.h";
+
+!==============================================================================
+! GAME STATE
+!==============================================================================
+! Centralized state management - all game flags and state queries
+Include "src/state.inf";
+
+!==============================================================================
+! EVENTS SYSTEM
+!==============================================================================
+! Time-based events and triggers
+Include "src/events.inf";
+
+!==============================================================================
+! PUNYINFORM CORE
+!==============================================================================
+! Load the main PunyInform library (must come after globals and before objects)
+Include "lib/puny.h";
+
+!==============================================================================
+! VERB EXTENSIONS
+!==============================================================================
+! Custom verb definitions and extensions
+Include "src/verbs.inf";
+
+!==============================================================================
+! OBJECTS
+!==============================================================================
+! Game objects organized by type
+
+! Static objects and scenery
+Include "src/objects/fixtures.inf";
+
+! Portable items
+Include "src/objects/items.inf";
+
+! The central Atari 800 puzzle object
+Include "src/objects/atari800.inf";
+
+!==============================================================================
+! ROOMS
+!==============================================================================
+! Room definitions - each room is a self-contained module
+
+Include "src/rooms/lobby.inf";
+Include "src/rooms/platform.inf";
+Include "src/rooms/storage.inf";
+Include "src/rooms/bunker.inf";
+Include "src/rooms/ticket_office.inf";
+
+!==============================================================================
+! NARRATIVE SYSTEMS
+!==============================================================================
+! Sequential reading systems for story content
+
+Include "src/narrative/logbook.inf";
+Include "src/narrative/diary.inf";
+
+!==============================================================================
+! INITIALIZATION
+!==============================================================================
+! Game startup and object placement
+
+Include "src/init.inf";
+
+!==============================================================================
+! END OF GAME
+!==============================================================================

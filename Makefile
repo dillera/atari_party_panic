@@ -5,7 +5,7 @@
 #_____________________________________________________
 
 # Compiler settings
-INFORM = inform
+INFORM = /usr/local/bin/inform
 INFORM_FLAGS = -v3 +lib -Cu
 
 # Source and build settings

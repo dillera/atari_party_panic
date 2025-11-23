@@ -231,16 +231,19 @@ Property individual cheap_scenery;
 [ CSHasAdjective p_word _arr _w1;
 	_arr = CSData-->CSDATA_POINTER;
 	_w1 = _arr-->0;
-	if(_w1 < 10 || _w1 > 99)
+	if(_w1 < 1 || _w1 > 99) {
+		if(_w1 == p_word)
+			rtrue;
 		rfalse;
+	}
 	return _CSFindInArr(p_word, _arr + 2, _w1 / 10);
 ];
 
 [ CSHasNoun p_word _arr _w1;
 	_arr = CSData-->CSDATA_POINTER;
 	_w1 = _arr-->0;
-	if(_w1 < 2 || _w1 > 99) {
-		if(p_word == _w1 or _arr-->1)
+	if(_w1 < 1 || _w1 > 99) {
+		if(_arr-->1 == p_word)
 			rtrue;
 		rfalse;
 	}
@@ -482,9 +485,6 @@ Object CheapScenery "object"
 		article "an",
 		parse_name [ _ret;
 			cs_match_id = 0;
-#Ifdef DEBUG;
-print "[DEBUG parse_name] ENTRY - location=",(object)location," (",location,")^";
-#Endif;
 			CSData-->CSDATA_MATCH_LENGTH = 0;
 			_ret = _ParseCheapScenery(location, cheap_scenery, wn);
 			if(CSDATA-->CSDATA_PRONOUN == CS_THEM) {
@@ -504,8 +504,6 @@ print "[DEBUG parse_name] ENTRY - location=",(object)location," (",location,")^"
 		before [_i _k _self_bak;
 #Endif;
 			_i = CSData-->CSDATA_POINTER;
-			if(_i == 0) ! There is no match
-				print_ret (string) CS_DEFAULT_MSG;
 			_k = _i-->0;
 			if(_k > 0 && _k < 100)
 				_k = 1 + (_k / 10) + (_k % 10);
@@ -544,34 +542,22 @@ print "[DEBUG parse_name] ENTRY - location=",(object)location," (",location,")^"
 			if(SceneryReply(_w1, _w2, _id_or_routine))
 				rtrue;
 #endif;
-			if(CS_DEFAULT_MSG ofclass Routine) {
-				CS_DEFAULT_MSG.Call();
-				rtrue;
-			}
 			print_ret (string) CS_DEFAULT_MSG;
 		],
-		react_after [ _i;
+		react_after [;
 			Go:
 				if(itobj == self) itobj = 0;
 #ifdef PUNYINFORM_MAJOR_VERSION;
 				if(themobj == self) themobj = 0;
 #Endif;
-#Ifv5;
-				_i = 0; ! Get rid of warning
-				@copy_table CSData 0 10;
-#Ifnot;
-._BlankNext;
-				CSData-->_i = 0;
-				@inc_chk _i 4 ?~_BlankNext;
-#Endif;
 		],
 		found_in [;
-#Ifdef DEBUG;
-print "[DEBUG] CheapScenery.found_in called, location=",(object)location,"^";
-#Endif;
 			if(location provides cheap_scenery) rtrue;
 		],
-	has concealed scenery reactive
+	has concealed scenery
+#Ifdef OPTIONAL_REACTIVE_PARSE_NAME;
+		reactive
+#Endif;
 ;
 
 #Ifdef DEBUG;

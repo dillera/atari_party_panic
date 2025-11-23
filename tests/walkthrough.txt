@@ -1,0 +1,29 @@
+examine ataris
+examine systems
+examine counter
+examine windows
+examine shutters
+n
+x rug
+move rug
+d
+x atari
+x logbook
+read logbook
+read logbook
+read logbook
+read logbook
+read logbook
+x diary
+read diary
+u
+s
+w
+get tools
+x box
+get pokey
+i
+e
+n
+d
+put pokey in slot

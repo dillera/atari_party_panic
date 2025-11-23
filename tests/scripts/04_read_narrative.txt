@@ -1,0 +1,20 @@
+north
+pull rug
+down
+look
+take logbook
+take diary
+read logbook
+read logbook
+read logbook
+read logbook
+read logbook
+read logbook
+read diary
+read diary
+read diary
+read diary
+read diary
+read diary
+quit
+y

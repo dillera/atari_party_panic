@@ -140,14 +140,6 @@ Constant MSG_PARSER_NOTHING_TO_AGAIN "You can hardly repeat that.";
 #Ifndef MSG_PARSER_BE_MORE_SPECIFIC;
 Constant MSG_PARSER_BE_MORE_SPECIFIC "You need to be more specific.";
 #EndIf;
-#Ifndef MSG_PARSER_NO_MULTIPLES_FOR_NPC;
-Constant MSG_PARSER_NO_MULTIPLES_FOR_NPC "You can only refer to single objects when talking to others.";
-#EndIf;
-#IfnDef OPTIONAL_NO_DARKNESS;
-#IfnDef MSG_NOW_DARK;
-Constant MSG_NOW_DARK "^It is now pitch dark in here.";
-#EndIf;
-#EndIf;
 
 #IfDef OPTIONAL_FULL_SCORE;
 #IfDef OPTIONAL_SCORED;
@@ -244,6 +236,7 @@ Default MSG_LOCK_KEY_DOESNT_FIT 74;
 Default MSG_LOCK_DEFAULT 75;
 Default MSG_DISROBE_NOT_WEARING 76;
 Default MSG_DISROBE_DEFAULT 77;
+Default MSG_REMOVE_CLOSED 78;
 Default MSG_REMOVE_NOT_HERE 79;
 Default MSG_SEARCH_IN_IT_ISARE 80;
 Default MSG_SEARCH_ON_IT_ISARE 81;
@@ -335,16 +328,6 @@ Constant MSG_UNDO_DONE "Previous turn undone.";
 #EndIf;
 #EndIf;
 
-#Ifndef MSG_COMMENT_TRANSCRIPT;
-Constant MSG_COMMENT_TRANSCRIPT "[Comment recorded]^";
-#EndIf;
-#Ifndef MSG_COMMENT_NO_TRANSCRIPT;
-#ifdef OPTIONAL_EXTENDED_METAVERBS;
-Constant MSG_COMMENT_NO_TRANSCRIPT "[Comment not recorded. To record comments, start a transcript.]^";
-#IfNot;
-Constant MSG_COMMENT_NO_TRANSCRIPT "[Comment not recorded. This game does not support transcripts.]^";
-#EndIf;
-#EndIf;
 
 #IfDef OPTIONAL_EXTENDED_VERBSET;
 #Ifndef MSG_BURN_DEFAULT;
@@ -524,7 +507,9 @@ Constant SKIP_MSG_ASKFOR_DEFAULT;
 #Iffalse MSG_INSERT_NOT_OPEN < 1000;
 #Iffalse MSG_GO_DOOR_CLOSED < 1000;
 #Iffalse MSG_EMPTY_IS_CLOSED < 1000;
+#Iffalse MSG_REMOVE_CLOSED < 1000;
 Constant SKIP_MSG_ENTER_NOT_OPEN;
+#Endif;
 #Endif;
 #Endif;
 #Endif;
@@ -794,18 +779,18 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #Endif;
 #Ifndef SKIP_MSG_GIVE_DEFAULT;
 	MSG_GIVE_DEFAULT, MSG_SHOW_DEFAULT:
-		print_ret (The) second, " ", (DoOrDoes) second, "n't seem interested.";
+		print_ret (The) second, " doesn't seem interested.";
 #Endif;
 #Ifndef SKIP_MSG_ASKFOR_DEFAULT;
 	MSG_ASKFOR_DEFAULT, MSG_ASKTO_DEFAULT, MSG_ORDERS_WONT:
 	! p_arg_1 = the actor which the player has asked to do something.
-		print_ret (The) p_arg_1, " ", (HaveOrHas) p_arg_1, " better things to do.";
+		print_ret (The) p_arg_1, " has better things to do.";
 #Endif;
 #Ifndef SKIP_MSG_ENTER_NOT_OPEN;
 	MSG_ENTER_NOT_OPEN, MSG_EXIT_NOT_OPEN, MSG_INSERT_NOT_OPEN,
-	MSG_GO_DOOR_CLOSED, MSG_EMPTY_IS_CLOSED:
+	MSG_GO_DOOR_CLOSED, MSG_EMPTY_IS_CLOSED, MSG_REMOVE_CLOSED:
 	! p_arg_1 = the object which is closed, thus blocking the player's action.
-		"You can't, since ", (ObjIs) p_arg_1, " closed.";
+		"You can't, since ", (the) p_arg_1, " ", (isorare) p_arg_1, " closed.";
 #Endif;
 #Ifndef SKIP_MSG_GIVE_PLAYER;
 	MSG_GIVE_PLAYER, MSG_TAKE_ALREADY_HAVE:
@@ -870,17 +855,17 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #Iftrue MSG_AUTO_TAKE < 1000;
 	MSG_AUTO_TAKE:
 	! p_arg_1 = the object the player automatically picks up
-		"(first taking ", (the) p_arg_1, ")";
+	print "(first taking ", (the) p_arg_1, ")^";
 #Endif;
 #Iftrue MSG_AUTO_DISROBE < 1000;
 	MSG_AUTO_DISROBE:
 	! p_arg_1 = the object the player automatically takes off.
-		"(first taking off ", (the) p_arg_1, ")";
+		print "(first taking off ", (the) p_arg_1, ")^";
 #Endif;
 #Iftrue MSG_AUTO_DISROBE_WORN < 1000;
 	MSG_AUTO_DISROBE_WORN:
 	! p_arg_1 = the object the player would need to take off.
-		"But you would need to take off ", (the) p_arg_1, " first.";
+		print "But you would need to take off ", (the) p_arg_1, " first.^";
 #Endif;
 #IfTrue MSG_PARSER_NOTHING_TO_VERB < 1000;
 	MSG_PARSER_NOTHING_TO_VERB:
@@ -898,7 +883,7 @@ Constant SKIP_MSG_EXAMINE_DARK;
 	MSG_PARSER_NOT_HOLDING, MSG_AUTO_TAKE_NOT_HELD, MSG_WAVE_NOTHOLDING:
 	! p_arg_1 = the object which the player must be holding to perform the
 	! action but isn't.
-		"But you are not holding ", (the) p_arg_1, ".";
+		print_ret "But you are not holding ", (the) p_arg_1, ".";
 #Endif;
 #IfTrue MSG_PARSER_PARTIAL_MATCH < 1000;
 	MSG_PARSER_PARTIAL_MATCH:
@@ -910,19 +895,19 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #IfTrue MSG_PARSER_CANT_TALK < 1000;
 	MSG_PARSER_CANT_TALK:
 	! p_arg_1 = the object which can't be talked to.
-		"You can't talk to ", (the) p_arg_1, ".";
+		print_ret "You can't talk to ", (the) p_arg_1, ".";
 #EndIf;
 #IfTrue MSG_PARSER_NO_NEED_REFER_TO < 1000;
 	MSG_PARSER_NO_NEED_REFER_TO:
 		print "You don't need to refer to ~";
 		_PrintUnknownWord();
-		"~ in this game.";
+		print_ret "~ in this game.";
 #EndIf;
 #IfTrue MSG_PARSER_DONT_UNDERSTAND_WORD < 1000;
 	MSG_PARSER_DONT_UNDERSTAND_WORD:
-		print "Sorry, I don't understand what ~";
-		_PrintUnknownWord();
-		"~ means.";
+			print "Sorry, I don't understand what ~";
+			_PrintUnknownWord();
+			print_ret "~ means.";
 #EndIf;
 #IfTrue MSG_PARSER_BAD_PATTERN_PREFIX < 1000;
 	MSG_PARSER_BAD_PATTERN_PREFIX:
@@ -966,7 +951,7 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #EndIf;
 #Ifndef SKIP_MSG_LOCK_KEY_DOESNT_FIT;
 	MSG_LOCK_KEY_DOESNT_FIT, MSG_UNLOCK_KEY_DOESNT_FIT:
-		print_ret (The) second, " ", (DoOrDoes) second, "n't seem to fit the lock.";
+		print_ret (The) second, " doesn't seem to fit the lock.";
 #Endif;
 #IfTrue MSG_EXAMINE_CLOSED < 1000;
 	MSG_EXAMINE_CLOSED:
@@ -975,11 +960,11 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #Endif;
 #IfTrue MSG_REMOVE_NOT_HERE < 1000;
 	MSG_REMOVE_NOT_HERE:
-		"But ", (ObjIs) noun, "n't there now.";
+		"But ", (the) noun, " isn't there now.";
 #EndIf;
 #IfTrue MSG_SEARCH_IN_IT_ISARE < 1000;
 	MSG_SEARCH_IN_IT_ISARE:
-		print (The) noun, " contain", (SingularS) noun, " ";
+		print (The) noun, " contains ";
 		PrintContents(0, noun);
 		".";
 #EndIf;
@@ -999,7 +984,7 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #EndIf;
 #IfTrue MSG_SEARCH_CANT_SEE_CLOSED < 1000;
 	MSG_SEARCH_CANT_SEE_CLOSED:
-		"You can't see inside, since ", (ObjIs) noun, " closed.";
+		"You can't see inside, since ", (the) noun, " ", (IsorAre) noun, " closed.";
 #EndIf;
 #IfTrue MSG_EXAMINE_ONOFF < 1000;
 	MSG_EXAMINE_ONOFF:
@@ -1020,12 +1005,12 @@ MSG_RUB_DEFAULT, MSG_SQUEEZE_DEFAULT:
 #IfTrue MSG_TAKE_BELONGS < 1000;
 	MSG_TAKE_BELONGS:
 		! p_arg_1 = the object that is held by p_arg_2
-		print_ret (The) p_arg_1, " seem", (SingularS) p_arg_1, " to belong to ", (the) p_arg_2, ".";
+		print_ret (The) p_arg_1, " seems to belong to ", (the) p_arg_2, ".";
 #EndIf;
 #IfTrue MSG_TAKE_PART_OF < 1000;
 	MSG_TAKE_PART_OF:
 		! p_arg_1 = the object that is part of p_arg_2
-		print_ret (The) p_arg_1, " seem", (SingularS) p_arg_1, " to be part of ", (the) p_arg_2, ".";
+		print_ret (The) p_arg_1, " seems to be part of ", (the) p_arg_2, ".";
 #EndIf;
 #Ifndef OPTIONAL_NO_DARKNESS;
 #Ifndef SKIP_MSG_EXAMINE_DARK;
@@ -1137,12 +1122,10 @@ MSG_RUB_DEFAULT, MSG_SQUEEZE_DEFAULT:
 #IfTrue MSG_YES_OR_NO < 1000;
 	MSG_YES_OR_NO:
 		print "Please answer yes or no: ";
-		rtrue;
 #EndIf;
 #IfTrue MSG_RESTART_CONFIRM < 1000;
 	MSG_RESTART_CONFIRM:
 		print "Are you sure you want to restart? ";
-		rtrue;
 #Endif;
 
 #Ifndef NO_SCORE;
@@ -1165,7 +1148,7 @@ MSG_RUB_DEFAULT, MSG_SQUEEZE_DEFAULT:
 		}
 		print " by ", p_arg_2, " point";
 		if(p_arg_2 > 1) print "s";
-		".]";
+		print ".]^";
 #Endif;
 #Endif;
 
@@ -1202,16 +1185,16 @@ default:
 	}
 ];
 
-[ ThatorThose p_obj;
-	if (p_obj has pluralname) print "those"; else print "that";
+[ ThatorThose obj;
+	if (obj has pluralname) print "those"; else print "that";
 ];
 
-[ ItorThem p_obj;
-	if (p_obj == player)		{ print "yourself"; rtrue; }
-	if (p_obj has pluralname)	{ print "them"; rtrue; }
-	if (p_obj has animate) {
-		if (p_obj has female)	{ print "her"; rtrue; }
-		if (p_obj hasnt neuter)	{ print "him"; rtrue; }
+[ ItorThem obj;
+	if (obj == player) { print "yourself"; rtrue; }
+	if (obj has pluralname) { print "them"; rtrue; }
+	if (obj has animate) {
+		if (obj has female) { print "her"; rtrue; }
+		if (obj hasnt neuter) { print "him"; rtrue; }
 	}
 	print "it";
 ];
@@ -1220,29 +1203,16 @@ default:
 	print (The) p_obj, " ", (isorare) p_obj;
 ];
 
-[ ObjIs p_obj;
-	print (the) p_obj, " ", (isorare) p_obj;
+[ IsorAre obj;
+	if (obj has pluralname || obj == player) print "are"; else print "is";
 ];
 
-[ DoOrDoes p_obj;
-	print "do";
-	if (p_obj hasnt pluralname) print "es";
-];
-
-[ HaveOrHas p_obj;
-	if (p_obj has pluralname) print "have"; else print "has";
-];
-
-[ IsorAre p_obj;
-	if (p_obj has pluralname || p_obj == player) print "are"; else print "is";
-];
-
-[ CTheyreorThats p_obj;
-	if (p_obj == player)		{ print "You're"; return; }
-	if (p_obj has pluralname)	{ print "They're"; return; }
-	if (p_obj has animate) {
-		if (p_obj has female)	{ print "She's"; return; }
-		if (p_obj hasnt neuter) { print "He's"; return; }
+[ CTheyreorThats obj;
+	if (obj == player)			 { print "You're"; return; }
+	if (obj has pluralname)		{ print "They're"; return; }
+	if (obj has animate) {
+		if (obj has female)		{ print "She's"; return; }
+		if (obj hasnt neuter) { print "He's"; return; }
 	}
 	print "That's";
 ];
@@ -1255,15 +1225,13 @@ default:
 	CTheyreorThats(p_obj);
 ];
 
-[ OnOff p_obj;
-	if(p_obj has on) print "on";
+[OnOff obj;
+	if(obj has on) print "on";
 	else print "off";
 	return;
 ];
 
-[ SingularS p_obj;
-	if(p_obj hasnt pluralname && p_obj ~= player) print "s";
-];
+
 !
 ! Error messages
 !
@@ -1276,7 +1244,6 @@ Constant ERR_TOO_MANY_FLOATING 6;
 Constant ERR_NOT_DIR_PROP 7;
 Constant ERR_NOT_FAKE_OBJ 8;
 Constant ERR_ILLEGAL_CHOOSEOBJNO 9;
-Constant ERR_BUFFER_OVERRUN 10;
 
 [_RunTimeError p_err p_obj _parent;
 	print "^[PunyInform error: ";
@@ -1305,10 +1272,6 @@ Constant ERR_BUFFER_OVERRUN 10;
 			print "FakeObjToDirProp called with non-fakeobj";
 		ERR_ILLEGAL_CHOOSEOBJNO:
 			print "ChooseObjectsFinal_(Pick or Discard) called with nonexistent array index";
-#Ifdef DEBUG;
-		ERR_BUFFER_OVERRUN:
-			print "Buffer overrun: Printing too many characters to a buffer";
-#Endif;
 		default:
 			print "Unknown error";
 		}

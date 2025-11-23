@@ -1,0 +1,2 @@
+Include "lib/globals.h";
+[ Main; ];

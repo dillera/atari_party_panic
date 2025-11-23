@@ -1,0 +1,3 @@
+look
+examine ataris
+x counter

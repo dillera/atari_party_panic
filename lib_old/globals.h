@@ -2,80 +2,80 @@
 !
 System_file;
 
-Constant PUNYINFORM_MAJOR_VERSION = 6;
-Constant PUNYINFORM_MINOR_VERSION = 1;
-Constant PUNYINFORM_PATCH_VERSION = 1; ! Usually 0 (if zero, it is not printed in banner)
+Constant PUNYINFORM_MAJOR_VERSION = 5;
+Constant PUNYINFORM_MINOR_VERSION = 7;
+Constant PUNYINFORM_PATCH_VERSION = 0; ! Usually 0 (if zero, it is not printed in banner)
 !Constant PUNYINFORM_VERSION_SUFFIX = "dev"; ! Comment out if none
 
-#Ifndef VN_1644;
-Message fatalerror "*** The PunyInform library needs Inform v6.44 or later to work ***";
+#Ifndef VN_1636;
+Message fatalerror "*** The PunyInform library needs Inform v6.36 or later to work ***";
 #Endif; ! VN_
 
 #IfnDef CUSTOM_ABBREVIATIONS;
-Abbreviate "Are you sure you want to ";
+Abbreviate "Are you sure you wan";
+Abbreviate "are referring to.";
 Abbreviate " descriptions o";
-Abbreviate "n't understand";
 Abbreviate "(first taking ";
-Abbreviate "le objects w";
-Abbreviate " pitch dark ";
-Abbreviate "There is no";
+Abbreviate "n't understand";
+Abbreviate "use multiple";
 Abbreviate "unexpected.";
 Abbreviate "But you are";
-Abbreviate "use multip";
+Abbreviate " you'd have";
+Abbreviate "There is no";
 Abbreviate "You can't ";
 Abbreviate "something";
+Abbreviate "take off ";
 Abbreviate " carrying";
 Abbreviate " nothing ";
-Abbreviate " already ";
-Abbreviate "holding ";
-Abbreviate "yourself";
-Abbreviate "wearing ";
-Abbreviate "[Comment";
-Abbreviate " itself.";
+Abbreviate " availabl";
+Abbreviate " wearing ";
+Abbreviate "happens.";
+Abbreviate " already";
 Abbreviate "irection";
+Abbreviate " itself.";
+Abbreviate "holding ";
+Abbreviate ", since ";
+Abbreviate " (which ";
+Abbreviate "yourself";
+Abbreviate "Inform ";
 Abbreviate "You are";
 Abbreviate " number";
-Abbreviate "Inform ";
-Abbreviate " score";
-Abbreviate "You're";
-Abbreviate " refer";
-Abbreviate "eed to";
-Abbreviate "which ";
-Abbreviate "switch";
 Abbreviate "achiev";
 Abbreviate "would ";
-Abbreviate " game";
-Abbreviate " not ";
-Abbreviate "close";
+Abbreviate "ontain";
+Abbreviate " empty";
+Abbreviate "lease ";
+Abbreviate "switch";
+Abbreviate "You're";
+Abbreviate " this";
+Abbreviate "again";
 Abbreviate " that";
 Abbreviate " you ";
 Abbreviate "thing";
-Abbreviate " the ";
-Abbreviate "again";
-Abbreviate "here";
-Abbreviate "ing ";
-Abbreviate " to ";
+Abbreviate "here.";
 Abbreviate "n't ";
-Abbreviate "You ";
+Abbreviate " the";
+Abbreviate " to ";
 Abbreviate "have";
+Abbreviate " on ";
 Abbreviate " ***";
-Abbreviate "can ";
-Abbreviate " in";
-Abbreviate " an";
-Abbreviate " on";
-Abbreviate "pen";
-Abbreviate "thi";
-Abbreviate "ver";
-Abbreviate "ly ";
-Abbreviate "ut ";
+Abbreviate "You ";
 Abbreviate "ed.";
-Abbreviate "s.";
+Abbreviate " wh";
+Abbreviate " in";
+Abbreviate " no";
+Abbreviate "los";
+Abbreviate "see";
+Abbreviate "an ";
+Abbreviate "ut ";
+Abbreviate " mo";
+Abbreviate "est";
+Abbreviate " an";
+Abbreviate "re ";
 Abbreviate "e.";
 Abbreviate "I ";
-Abbreviate ".^";
+Abbreviate " ~";
 Abbreviate "Th";
-Abbreviate "]^";
-Abbreviate "'s";
 #EndIf;
 
 #IfDef STATUSLINE_TIME;
@@ -84,7 +84,7 @@ Message fatalerror "Can't define both STATUSLINE_TIME and STATUSLINE_SCORE."
 #EndIf;
 #EndIf;
 
-Constant Grammar__Version = 3;
+Constant Grammar__Version = 2;
 Constant INDIV_PROP_START 64;
 Constant NULL         = $ffff;
 
@@ -148,7 +148,9 @@ Constant SOMEDIRECTION_STR = "(some direction)";
 Constant IS_STR = "is ";
 Constant ARE_STR = "are ";
 
-Default DEFAULT_CAPACITY = 100;
+#Ifndef DEFAULT_CAPACITY;
+Constant DEFAULT_CAPACITY = 100;
+#Endif;
 
 #Ifdef OPTIONAL_PROVIDE_UNDO;
 #IfV3;
@@ -531,6 +533,7 @@ Global himobj = 0;       ! The object which is currently "him"
 Global herobj = 0;       ! The object which is currently "her"
 Global themobj = 0;       ! The object which is currently "them"
 Global top_object;
+Global newline_flag;     ! Used by Look
 Global also_flag;        ! Used by Look
 Global inventory_style = 1;
 Global inventory_stage;
@@ -539,7 +542,6 @@ Global receive_action;
 Global run_after_routines_msg;
 Global run_after_routines_arg_1;
 Global no_implicit_actions;         ! Don't implicitly do things.
-Global caps_mode;
 #Ifdef OPTIONAL_MANUAL_SCOPE_BOOST;
 Global react_before_in_scope;
 Global react_after_in_scope;
@@ -568,15 +570,6 @@ Constant CLR_BLUE            = 6;
 Constant CLR_MAGENTA         = 7;
 Constant CLR_CYAN            = 8;
 Constant CLR_WHITE           = 9;
-
-Constant CLR_OZMOO_ORANGE      = 16;
-Constant CLR_OZMOO_BROWN       = 17;
-Constant CLR_OZMOO_LIGHT_RED   = 18;
-Constant CLR_OZMOO_DARK_GREY   = 19;
-Constant CLR_OZMOO_MEDIUM_GREY = 20;
-Constant CLR_OZMOO_LIGHT_GREEN = 21;
-Constant CLR_OZMOO_LIGHT_BLUE  = 22;
-Constant CLR_OZMOO_LIGHT_GREY  = 23;
 
 #IfV5;
 Constant WIN_ALL     0;
@@ -613,14 +606,18 @@ Array scope-->MAX_SCOPE; ! objects visible from the current POV
 Array scope_copy-->MAX_SCOPE; ! Used to hold a copy of a scope list, for iteration
 
 Constant WORD_HIGHBIT = $8000;
-Default MAX_TIMERS  32;            ! Max number timers/daemons active at once
+#Ifndef MAX_TIMERS;
+Constant MAX_TIMERS  32;            ! Max number timers/daemons active at once
+#Endif; ! MAX_TIMERS
 Array  the_timers --> MAX_TIMERS;
 Global active_timers;               ! Number of timers/daemons active
 Global current_timer;               ! Index of the timer which is currently being executed
 
-Global PrintMsg = 0;        ! Using a global for this saves one byte per call
+Global PrintMsg = _PrintMsg;        ! Using a global for this saves one byte per call
 
-Default MAX_FLOATING_OBJECTS  32;            ! Max number of objects that have found_in property
+#Ifndef MAX_FLOATING_OBJECTS;
+Constant MAX_FLOATING_OBJECTS  32;            ! Max number of objects that have found_in property
+#Endif; ! MAX_FLOATING_OBJECTS
 Array floating_objects --> MAX_FLOATING_OBJECTS + 1;
 
 Global c_style = 0;
@@ -643,8 +640,8 @@ Global input_noun;
 Global input_second;
 Global input_direction;
 
-Array which_object-->MAX_WHICH_OBJECTS+1;       ! options for "which book?"
-Array multiple_objects-->MAX_MULTIPLE_OBJECTS+1;! holds nouns when multi* used
+Array which_object-->MAX_WHICH_OBJECTS;       ! options for "which book?"
+Array multiple_objects-->MAX_MULTIPLE_OBJECTS;! holds nouns when multi* used
 
 Array buffer->(MAX_INPUT_CHARS + 3);
 Array parse->(2 + 4 * (MAX_INPUT_WORDS + 1)); ! + 1 to make room for an extra word which is set to 0
@@ -652,14 +649,7 @@ Array parse->(2 + 4 * (MAX_INPUT_WORDS + 1)); ! + 1 to make room for an extra wo
 ! extra arrays to be able to ask for additional info (do you mean X or Y?)
 Array buffer2->(MAX_INPUT_CHARS + 3);
 Array parse2->(2 + 4 * (MAX_INPUT_WORDS + 1));
-Array parse3->(2 + 4 * (MAX_INPUT_WORDS + 1)); ! Must be placed directly after parse2 (used together for empty_arr below)
-
-#Iftrue 4*MAX_INPUT_WORDS >= MAX_SCOPE;
-Constant empty_arr = parse2;
-#Ifnot;
-Array empty_arr --> MAX_SCOPE;
-#Endif;
-
+Array parse3->(2 + 4 * (MAX_INPUT_WORDS + 1));
 
 Constant RTE_MINIMUM = 0;
 Constant RTE_NORMAL  = 1;

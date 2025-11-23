@@ -1,0 +1,9 @@
+look
+wait
+wait
+wait
+wait
+look
+east
+quit
+y

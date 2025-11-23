@@ -1,0 +1,21 @@
+west
+take chip
+east
+north
+pull rug
+down
+put chip in atari
+west
+take tools
+east
+north
+pull rug
+down
+put chip in atari
+wait
+wait
+wait
+wait
+put chip in atari
+quit
+y

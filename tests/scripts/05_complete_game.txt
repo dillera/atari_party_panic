@@ -1,0 +1,20 @@
+look
+west
+look
+examine box
+take chip
+take tools
+east
+wait
+wait
+wait
+wait
+look
+north
+pull rug
+down
+look
+examine atari
+put chip in atari
+quit
+y

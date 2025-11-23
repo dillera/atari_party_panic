@@ -1,0 +1,13 @@
+look
+inventory
+north
+look
+south
+west
+look
+east
+east
+look
+west
+quit
+y
