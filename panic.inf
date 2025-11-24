@@ -281,7 +281,7 @@ Object -> tools "electronics toolkit"
     with
         name 'toolkit' 'tools' 'kit',
         description "A basic electronics toolkit with chip extraction tools and an anti-static wrist strap.",
-    has container open static;
+    has container open;
 
 Object -> drive "Atari 1050 disk drive"
     with
@@ -392,7 +392,7 @@ Object BunkerRoom "Bunker"
             if (power_failed) {
                 print "Emergency lighting bathes everything in an eerie blue glow. Most 
                     of the equipment has gone dark, except for the central Atari system 
-                    which runs on its own power supply.";
+                    which seems to run on its own power supply.";
             } else {
                 print "Fluorescent lights illuminate banks of vintage computer racks, their 
                     cooling fans providing a constant background hum.";
@@ -400,7 +400,7 @@ Object BunkerRoom "Bunker"
             
             print "^In the center of the room stands a heavy metal table, supporting a 
                 heavily modified Atari 800 connected to what appears to be a military-grade 
-                telecom system with an old modem. 
+                telecom system with an an industrial looking modem. 
                 A technical notebook rests beside the computer as well as a small diary.^";
             
             rfalse;
@@ -409,7 +409,7 @@ Object BunkerRoom "Bunker"
         cheap_scenery
             'rack' 'racks//p' "Racks of vintage 1970s and 80s computing equipment."
             'equipment' 'electronics' "Vintage computing equipment from the 1970s and 80s."
-            1 'table' "A heavy metal table supporting the Atari system."
+            'table' "A heavy metal table supporting the Atari system."
             'fan' 'fans//p' "Cooling fans humming quietly in the background.",
     has light;
 
@@ -446,13 +446,14 @@ Object -> atari800 "modified Atari 800"
     with
         name 'atari' '800' 'computer' 'system',
         description [;
-            print "This Atari 800 is unlike any you've seen before. Rack-mounted in a 
-                military-grade enclosure, it's been extensively modified with additional 
+            print "This Atari is unlike any you've seen before. Mounted in a 
+                military-grade enclosure and bolted on the table
+                it's been extensively modified with additional 
                 hardware. A government property tag reads: ~IRON HORSE COMM SYSTEM V2.3~.^";
             
             if (pokey_installed)
                 "The screen displays: ~EMERGENCY PROTOCOL ACTIVE - ATTEMPTING MODEM SYNC~";
-            "The screen shows various error messages about a missing POKEY chip.";
+            "The screen shows various error messages about a missing chip to control the modem.";
         ],
         before [;
             Take: "The computer is securely bolted to the table.";
@@ -479,9 +480,11 @@ Object -> atari800 "modified Atari 800"
                     RestorePower();
                     
                     print "^The Atari's modem immediately springs to life! After a brief exchange of data, 
-                        the security system confirms that there is no emergency.^^";
-                    print "With a series of heavy clicks, the metal shutters retract and the 
-                        main power comes back online.^^";
+                        the security system seems to confirm that there is no actual emergency.^^";
+                    print "With a series of heavy clicks, and a loud humming you feel the throb
+                         of many large motors vibrate behind the wall. You hear from above the 
+                         shriek of metal ginding as the metal shutters retract and then 
+                         main power comes back online.^^";
                     
                     score = 50;
                     print "You've successfully restored the station's systems and saved the Atari party!^^";
