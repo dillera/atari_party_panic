@@ -432,7 +432,7 @@ Object BunkerRoom "Bunker"
         cheap_scenery
             'rack' 'racks//p' "Racks of vintage 1970s and 80s computing equipment."
             'equipment' 'electronics' "Vintage computing equipment from the 1970s and 80s."
-            'table' "A heavy metal table supporting the Atari system."
+            'metal' 'table' "A heavy metal table supporting the Atari system."
             'fan' 'fans//p' "Cooling fans humming quietly in the background.",
     has light;
 
@@ -550,8 +550,8 @@ Object PowerFailureDaemon "power failure daemon"
                 ! Turn 3: 33% chance, Turn 4: 50% chance, Turn 5: 100% chance
                 if (game_turns >= 5 || random(10) <= (game_turns * 2)) {
                     if (location == Platform) {
-                        print "^(As the shutters begin to descend, the station master grabs you 
-                        and pulls you back inside just in time!)^^";
+                        print "^(As the shutters begin to descend, your friend Ben yells and
+                        grabs you, pulling you back inside just in time!)^^";
                         PlayerTo(TrainStation);
                     }
 
