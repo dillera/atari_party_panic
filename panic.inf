@@ -528,7 +528,7 @@ Object -> -> chipSlot "POKEY chip slot"
         ],
         before [;
             Receive:
-                if (noun == pokeyChip) rtrue;
+                if (noun == pokeyChip) <<Insert noun atari800>>;
                 "That doesn't fit in the chip socket.";
         ],
     has static container open;
