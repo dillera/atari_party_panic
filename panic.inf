@@ -259,6 +259,14 @@ Object -> -> pokeyChip "POKEY chip"
                 and these things are super rare.";
             "";
         ],
+        after [;
+            Take:
+                if (self hasnt general) {
+                    give self general;
+                    score = score + 5;
+                    print "You carefully secure the rare chip.^";
+                }
+        ],
     has;
 
 Object -> -> anticChip "ANTIC chip"
@@ -273,6 +281,13 @@ Object -> -> anticChip "ANTIC chip"
                 " You need to be careful handling it - static electricity could damage it.";
             "";
         ],
+        after [;
+            Take:
+                if (self hasnt general) {
+                    give self general;
+                    score = score + 2;
+                }
+        ],
     has;
 
 
@@ -281,6 +296,14 @@ Object -> tools "electronics toolkit"
     with
         name 'toolkit' 'tools' 'kit',
         description "A basic electronics toolkit with chip extraction tools and an anti-static wrist strap.",
+        after [;
+            Take:
+                if (self hasnt general) {
+                    give self general;
+                    score = score + 3;
+                    print "You'll need these for any delicate work.^";
+                }
+        ],
     has container open;
 
 Object -> drive "Atari 1050 disk drive"
