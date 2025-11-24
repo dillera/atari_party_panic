@@ -549,6 +549,12 @@ Object PowerFailureDaemon "power failure daemon"
                 ! Random chance increases each turn after turn 3
                 ! Turn 3: 33% chance, Turn 4: 50% chance, Turn 5: 100% chance
                 if (game_turns >= 5 || random(10) <= (game_turns * 2)) {
+                    if (location == Platform) {
+                        print "^(As the shutters begin to descend, the station master grabs you 
+                        and pulls you back inside just in time!)^^";
+                        PlayerTo(TrainStation);
+                    }
+
                     print "^^[ALERT] Suddenly, a piercing alarm shrieks through the station! ^";
                     print "Red emergency lights begin flashing as heavy metal shutters slam down ";
                     print "over every window and door with a thunderous series of crashes. ^";
@@ -570,7 +576,7 @@ Object PowerFailureDaemon "power failure daemon"
 ! INITIALIZATION
 !==============================================================================
 [ Initialise;
-    print "[DEBUG Initialise] Starting...^";
+!   print "[DEBUG Initialise] Starting...^";
 !    print "[DEBUG] TrainStation object = ", (object) TrainStation, " (", TrainStation, ")^";
 !    print "[DEBUG] TrainStation provides cheap_scenery? ", (TrainStation provides cheap_scenery), "^";
     
