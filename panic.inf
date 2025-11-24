@@ -250,7 +250,15 @@ Object -> -> atariDisk "Atari diagnostic disk"
 Object -> -> pokeyChip "POKEY chip"
     with
         name 'pokey' 'sound' 'chip',
-        description "An original Atari POKEY chip.",
+        description [;
+            print "An original Atari POKEY - POtentiometer and KEYboard - chip 
+            (part number C012294). It handles sound generation, SIO and
+            serial I/O operations on the Atari.";
+            if (parent(self) == player)
+                " You need to be careful handling it - static electricity could damage it
+                and these things are super rare.";
+            "";
+        ],
     has;
 
 Object -> -> anticChip "ANTIC chip"
@@ -282,12 +290,6 @@ Object -> drive "Atari 1050 disk drive"
         enhanced density was? The drive looks clean and has a SIO cable stuck in the back of it.
         There is no power supply with it but you don't hear anything when you gently shake it.",
     has static;
-
-Object -> testCoin "test coin"
-    with
-        name 'test' 'coin',
-        description "A simple test coin.",
-    has;
 
 
 

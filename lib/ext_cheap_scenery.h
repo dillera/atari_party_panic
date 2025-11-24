@@ -482,9 +482,6 @@ Object CheapScenery "object"
 		article "an",
 		parse_name [ _ret;
 			cs_match_id = 0;
-#Ifdef DEBUG;
-print "[DEBUG parse_name] ENTRY - location=",(object)location," (",location,")^";
-#Endif;
 			CSData-->CSDATA_MATCH_LENGTH = 0;
 			_ret = _ParseCheapScenery(location, cheap_scenery, wn);
 			if(CSDATA-->CSDATA_PRONOUN == CS_THEM) {
@@ -566,9 +563,6 @@ print "[DEBUG parse_name] ENTRY - location=",(object)location," (",location,")^"
 #Endif;
 		],
 		found_in [;
-#Ifdef DEBUG;
-print "[DEBUG] CheapScenery.found_in called, location=",(object)location,"^";
-#Endif;
 			if(location provides cheap_scenery) rtrue;
 		],
 	has concealed scenery reactive

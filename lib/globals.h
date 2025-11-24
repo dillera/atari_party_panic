@@ -618,7 +618,7 @@ Array  the_timers --> MAX_TIMERS;
 Global active_timers;               ! Number of timers/daemons active
 Global current_timer;               ! Index of the timer which is currently being executed
 
-Global PrintMsg = 0;        ! Using a global for this saves one byte per call
+Global PrintMsg = _PrintMsg;        ! Using a global for this saves one byte per call
 
 Default MAX_FLOATING_OBJECTS  32;            ! Max number of objects that have found_in property
 Array floating_objects --> MAX_FLOATING_OBJECTS + 1;
