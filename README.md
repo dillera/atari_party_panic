@@ -1,107 +1,74 @@
-# atari_party_panic
+# Atari Party Panic (2025 Edition)
 
-SYSTEM MAINTENANCE LOG
-Facility: Quakertown Station Underground Command Center
-System: SENTINEL-QT (Atari 800 Terminal Interface)
+**Release 2 (v1.3) - November 2025**
 
-1991-08-15
-Final system diagnostic before facility decommission. All security protocols still active. Reminder: System will maintain lockdown protocols even after power loss due to custom backup circuits.
+*System Maintenance Log: Facility SENTINEL-QT. Status: LOCKDOWN.*
 
+A PunyInform interactive fiction game for the Atari 8-bit computers (and other Z-machine interpreters).
 
-Don't panic, you know this.
+## 🎮 Gameplay Updates (2025)
 
+The 2025 edition (Release 2) introduces significant enhancements:
+- **Extended Ending**: A new narrative conclusion involving a mysterious bunker corridor.
+- **New Items**: Discover the Atari 810 disk drive and ATASCII reference card.
+- **Scoring System**: Points are now awarded for finding key items (POKEY chip, Tools, etc.).
+- **Bug Fixes**: Resolved issues with platform lockdown, inventory management, and object descriptions.
+- **Engine Update**: Built with the latest PunyInform v6.1.1 and Inform 6.44.
 
-## Quick Build - on a Mac, for Atari 170k disk
-```
-$ make
-$ make build
-$ made deploy
-$ make clean
-```
+## 📂 Project Structure
 
- - make    - invokes inform, outputs a .z3
- - build   - invokes some bash and outputs an .atr bootable disk image
- - deploy  - scp's the disk image to my tnfs server for loading
- - clean   - removes the .z3 and .art files from the filesystem
+- `src/` - Source code modules (rooms, logic, config)
+- `tests/` - Automated test suite and test sources
+- `docs/` - Design documentation and manuals
+- `lib/` - PunyInform library files
+- `panic.inf` - Main game entry point
+- `Makefile` - Build automation
 
- Adjust as necessary (the story name, tnfs server target) in the Makefile and save.
- 
+## ��️ Building the Game
 
-### Building 
+### Requirements
+- **Inform 6 Compiler** (v6.30 or later)
+- **Make**
 
-As of now, something is wrong with the builds for ATRs using the shell commands. However this website does an amazing job:
-https://a8.jindrou.sh/inform.html
+### Build Commands
 
-And i'll be looking at how to make it work via makefile soon.
+| Command | Description | Output |
+|---------|-------------|--------|
+| `make` | Compiles the Z-machine story file | `panic.z3` |
+| `make build` | Creates a bootable Atari disk image | `panic.atr` |
+| `make deploy` | Builds and uploads to TNFS server | (Remote upload) |
+| `make clean` | Removes build artifacts | |
 
+The `panic.atr` file is a bootable Single Density (90k/130k) disk image ready for Atari emulators (Altirra, Atari800) or real hardware via FujiNet/SIO2SD.
 
+## 🧪 Testing
 
-## Manual Building from Source
+The project includes a comprehensive automated test suite in the `tests/` directory.
 
+### Running Tests
 
-### OSX Setup
-
-Building with Puny requires Inform, you can install it via brew:
-```
-brew install inform
-```
-
-Playing the game can be done with frotz. Download some Atari fonts and set the screen to be 40x24...
-```
-$ brew install frotz
-```
-
-### Build Game:
-For now, we are just interested in a z3 version of the game so that it can fit on a real physical Atari 90k disk.
-
-```
-$ inform -v3 +lib  -Cu panic.inf artifacts/panic.z3
+To run the full regression suite:
+```bash
+cd tests
+./test_endgame.sh        # Verifies full walkthrough and victory
+./test_scoring.sh        # Checks scoring logic
+./test_minimal.sh        # Tests core inventory mechanics
+./test_platform_rescue.sh # Tests platform rescue event
 ```
 
-The built files should always be placed in the artifacts directory so that the buils scrips can find them when creating the disk images.
+Each script compiles the game (if needed) and runs `dfrotz` with input scripts, verifying the output against expected regex patterns.
 
-
-## Entomb
-
-```
-cd build
-
+### Manual Testing
+You can play the compiled game directly in the terminal:
+```bash
+dfrotz panic.z3
 ```
 
-run the build scripts, atari.sh and apple2.sh.
-Both of these are pulled from https://github.com/ByteProject/Puny-BuildTools
-which is a great project that builds across a wide range of 8bit systems.
+## 📜 Credits
 
-For my project I _only_ want Atari8 and Apple2 .z3 images to convert to real physical floppies....
+**Author**: Andrew Diller
+**System Architecture**: PunyInform v6.1.1 by Johan Berntsson and Fredrik Ramsberg
+**Compiler**: Inform 6.44
+**Release**: 2 / Serial 251126
 
-```
-$ ./atari.sh
-
-```
-This expects to find a panic.z3 file in the build directory and it will create an Atari image.
-
-```
-$ ./apple2.sh
-```
-
-This is not tested by myself yet.
-
-
-### Move the Images to a TNFS server
-
-```
-scp ../artifacts/panic_atari8bit.atr actual:_services/tnfs/server_root/ATARI/TESTING/panic.atr
-
-```
-
-Now using a real Atari, with a 1050 disk drive setup as D3: and a FujiNet on the same SIO chain, boot the FujiNet and run the 810 copy program. Mount the panic.atr as the 2nd disk drive (D2:). Boot FN using OPTION.
-
-I'll put screen shots in here, but run the copier, source is D2: and destination is D3:
-
-
-## Testing
-
-Once this is done you have to test by disconnecting the FN (use the switch on the side to turn it off) and set the 1050 as D1: - boot the disk and the game should load.
-
-
-
+*Dedicated to the 8-bit era.*

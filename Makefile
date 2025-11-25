@@ -36,7 +36,7 @@ build: $(NAME).z3
 
 # Deploy to server
 deploy: build
-	scp $(NAME).atr actual:_services/tnfs/server_root/ATARI/TESTING/panic.atr
+	scp $(NAME).atr actual.diller.org:_services/tnfs/server_root/ATARI/TESTING/panic.atr
 
 # Clean build artifacts
 clean:

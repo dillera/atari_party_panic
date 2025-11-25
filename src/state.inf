@@ -31,6 +31,6 @@ Global diary_entry_read = 0;
     doors_locked = false;
 ];
 
-[ IsRugMoved; return rug_moved; ];
-[ IsBunkerFound; return bunker_found; ];
+! [ IsRugMoved; return rug_moved; ];
+! [ IsBunkerFound; return bunker_found; ];
 
