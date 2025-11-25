@@ -3,8 +3,9 @@
 ! This module defines all game-wide constants and initial configuration
 
 ! Game metadata
-Constant Story "Atari Party Panic";
+Constant Story "Atari Party Panic 2025";
 Constant Headline "^An Interactive Fiction by Andrew Diller^";
+Release 2;
 
 ! Initial game setup
 ! Constant INITIAL_LOCATION_VALUE = TrainStation; ! Set in Initialise
