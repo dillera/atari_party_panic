@@ -4,7 +4,7 @@
 echo "=== Testing Platform Rescue ==="
 echo ""
 
-./build.sh > /dev/null 2>&1
+../build.sh > /dev/null 2>&1
 
 cat > /tmp/test_rescue.txt << 'EOF'
 e
@@ -19,7 +19,7 @@ y
 EOF
 
 echo "Running test..."
-dfrotz panic.z3 < /tmp/test_rescue.txt > /tmp/rescue_output.txt 2>&1
+dfrotz ../panic.z3 < /tmp/test_rescue.txt > /tmp/rescue_output.txt 2>&1
 
 echo "=== Test Results ==="
 grep -A 5 "station master grabs you" /tmp/rescue_output.txt

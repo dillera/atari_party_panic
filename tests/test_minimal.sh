@@ -2,9 +2,13 @@
 # Test script for minimal bug reproduction
 
 echo "=== Compiling Minimal Test Case ==="
-/usr/local/bin/inform -v3 +lib -Cu minimal_test.inf minimal_test.z3
+# Compile from root directory to resolve lib/ paths correctly
+cd ..
+/usr/local/bin/inform -v3 +lib -Cu tests/minimal_test.inf tests/minimal_test.z3
+RESULT=$?
+cd tests
 
-if [ ! -f minimal_test.z3 ]; then
+if [ $RESULT -ne 0 ]; then
     echo "✗ Compilation failed"
     exit 1
 fi

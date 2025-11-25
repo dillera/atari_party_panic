@@ -4,7 +4,7 @@
 echo "=== Debugging Ticket Office Objects ==="
 echo ""
 
-./build.sh > /dev/null 2>&1
+../build.sh > /dev/null 2>&1
 
 cat > /tmp/debug_test.txt << 'EOF'
 verbose
@@ -31,7 +31,7 @@ echo "  take disk / take pokey / take chip"
 echo "  get disk / get pokey / get chip"
 echo ""
 
-dfrotz panic.z3 < /tmp/debug_test.txt 2>&1 | grep -v DEBUG > /tmp/debug_output.txt
+dfrotz ../panic.z3 < /tmp/debug_test.txt 2>&1 | grep -v DEBUG > /tmp/debug_output.txt
 
 echo "=== Parser Responses ==="
 # Show what happens with examine commands

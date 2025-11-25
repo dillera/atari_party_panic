@@ -4,7 +4,7 @@
 echo "=== Testing Scoring Logic ==="
 echo ""
 
-./build.sh > /dev/null 2>&1
+../build.sh > /dev/null 2>&1
 
 cat > /tmp/test_scoring.txt << 'EOF'
 score
@@ -23,7 +23,7 @@ y
 EOF
 
 echo "Running test..."
-dfrotz panic.z3 < /tmp/test_scoring.txt > /tmp/scoring_output.txt 2>&1
+dfrotz ../panic.z3 < /tmp/test_scoring.txt > /tmp/scoring_output.txt 2>&1
 
 echo "=== Test Results ==="
 grep -A 2 "Score:" /tmp/scoring_output.txt | grep -v "Moves"

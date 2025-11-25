@@ -6,7 +6,7 @@ echo "=== Testing Ticket Office Object Inventory ==="
 echo ""
 
 # Build first
-./build.sh > /dev/null 2>&1
+../build.sh > /dev/null 2>&1
 
 if [ ! -f panic.z3 ]; then
     echo "✗ Build failed, cannot run test"
@@ -41,7 +41,7 @@ EOF
 
 echo "Running test..."
 echo ""
-dfrotz panic.z3 < /tmp/test_ticket_office.txt 2>&1 | grep -v DEBUG > /tmp/test_output.txt
+dfrotz ../panic.z3 < /tmp/test_ticket_office.txt 2>&1 | grep -v DEBUG > /tmp/test_output.txt
 
 # Display relevant output
 echo "=== Test Results ==="

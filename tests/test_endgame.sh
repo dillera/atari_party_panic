@@ -4,7 +4,7 @@
 echo "=== Testing Endgame Logic ==="
 echo ""
 
-./build.sh > /dev/null 2>&1
+../build.sh > /dev/null 2>&1
 
 cat > /tmp/test_endgame.txt << 'EOF'
 ! Move to ticket office
@@ -31,7 +31,7 @@ y
 EOF
 
 echo "Running test..."
-dfrotz panic.z3 < /tmp/test_endgame.txt > /tmp/endgame_output.txt 2>&1
+dfrotz ../panic.z3 < /tmp/test_endgame.txt > /tmp/endgame_output.txt 2>&1
 
 echo "=== Test Results ==="
 grep -A 5 "Ticket Office" /tmp/endgame_output.txt | head -10
@@ -41,7 +41,7 @@ echo "..."
 grep -A 10 "put pokey in computer" /tmp/endgame_output.txt
 
 echo ""
-if grep -q "You've successfully restored the station's systems" /tmp/endgame_output.txt; then
+if grep -q "successfully restored the station" /tmp/endgame_output.txt; then
     echo "✓ VICTORY: Successfully installed POKEY and won the game!"
 else
     echo "✗ FAILED: Did not trigger victory condition."

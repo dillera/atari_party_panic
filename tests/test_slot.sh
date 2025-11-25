@@ -4,7 +4,7 @@
 echo "=== Testing 'Put POKEY in SLOT' ==="
 echo ""
 
-./build.sh > /dev/null 2>&1
+../build.sh > /dev/null 2>&1
 
 cat > /tmp/test_slot.txt << 'EOF'
 w
@@ -26,7 +26,7 @@ y
 EOF
 
 echo "Running test..."
-dfrotz panic.z3 < /tmp/test_slot.txt > /tmp/slot_output.txt 2>&1
+dfrotz ../panic.z3 < /tmp/test_slot.txt > /tmp/slot_output.txt 2>&1
 
 echo "=== Test Results ==="
 grep -A 10 "put pokey in slot" /tmp/slot_output.txt
