@@ -6,7 +6,7 @@
 
 A PunyInform interactive fiction game for the Atari 8-bit computers (and other Z-machine interpreters).
 
-## 🎮 Gameplay Updates (2025)
+## Gameplay Updates (2025)
 
 The 2025 edition (Release 2) introduces significant enhancements:
 - **Extended Ending**: A new narrative conclusion involving a mysterious bunker corridor.
@@ -15,7 +15,7 @@ The 2025 edition (Release 2) introduces significant enhancements:
 - **Bug Fixes**: Resolved issues with platform lockdown, inventory management, and object descriptions.
 - **Engine Update**: Built with the latest PunyInform v6.1.1 and Inform 6.44.
 
-## 📂 Project Structure
+## Project Structure
 
 - `src/` - Source code modules (rooms, logic, config)
 - `tests/` - Automated test suite and test sources
@@ -24,7 +24,7 @@ The 2025 edition (Release 2) introduces significant enhancements:
 - `panic.inf` - Main game entry point
 - `Makefile` - Build automation
 
-## ��️ Building the Game
+## Building the Game
 
 ### Requirements
 - **Inform 6 Compiler** (v6.30 or later)
@@ -41,7 +41,7 @@ The 2025 edition (Release 2) introduces significant enhancements:
 
 The `panic.atr` file is a bootable Single Density (90k/130k) disk image ready for Atari emulators (Altirra, Atari800) or real hardware via FujiNet/SIO2SD.
 
-## 🧪 Testing
+## Testing
 
 The project includes a comprehensive automated test suite in the `tests/` directory.
 
@@ -64,7 +64,7 @@ You can play the compiled game directly in the terminal:
 dfrotz panic.z3
 ```
 
-## 📜 Credits
+## Credits
 
 **Author**: Andrew Diller
 **System Architecture**: PunyInform v6.1.1 by Johan Berntsson and Fredrik Ramsberg
